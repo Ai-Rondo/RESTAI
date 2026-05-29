@@ -1715,10 +1715,40 @@ textarea {
   padding: 14px;
 }
 
+.line-chart-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 86px minmax(0, 1fr);
+}
+
+.line-y-axis {
+  display: flex;
+  flex-direction: column;
+  height: 360px;
+  justify-content: space-between;
+}
+
+.line-y-axis span {
+  color: #aebdc4;
+  font-size: 0.74rem;
+  font-weight: 850;
+  text-align: right;
+}
+
 .portfolio-line-chart svg {
   display: block;
   height: 360px;
   width: 100%;
+}
+
+.axis-gridline {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1;
+}
+
+.line-data-point {
+  cursor: crosshair;
+  opacity: 0.92;
 }
 
 .benchmark-line,
@@ -1729,7 +1759,8 @@ textarea {
 .line-months {
   display: grid;
   gap: 6px;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-columns: 86px repeat(12, minmax(0, 1fr));
+  margin-top: 8px;
 }
 
 .line-months span {
@@ -1749,9 +1780,13 @@ textarea {
   background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  display: inline-flex;
+  display: grid;
   gap: 8px;
   padding: 9px 10px;
+}
+
+.line-tooltip-row small {
+  color: #8fa1aa;
 }
 
 .explorer-table-wrap {

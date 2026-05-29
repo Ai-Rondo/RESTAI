@@ -19,17 +19,69 @@ import {
 
 const stores = [
   { id: "all", name: "All Stores", code: "Group", baseSales: 0, cogs: 25.9, labor: 28.7, packaging: 4.4, controllables: 14.8, ebitda: 9.8 },
-  { id: "spdw", name: "Speedway", code: "SPDWY", baseSales: 211000, cogs: 25.3, labor: 27.4, packaging: 4.7, controllables: 14.1, ebitda: 10.7 },
-  { id: "gw", name: "Greenwood", code: "GW1273", baseSales: 219000, cogs: 25.1, labor: 28.1, packaging: 4.2, controllables: 13.9, ebitda: 11.4 },
-  { id: "pm", name: "Park Meridian", code: "PM 1275", baseSales: 123000, cogs: 25.6, labor: 30.8, packaging: 4.0, controllables: 16.4, ebitda: 6.7 },
-  { id: "cc", name: "Cool Creek", code: "CC 1364", baseSales: 188000, cogs: 26.2, labor: 29.4, packaging: 3.6, controllables: 15.1, ebitda: 8.5 },
-  { id: "htc", name: "Hamilton TC", code: "HTC1304", baseSales: 199000, cogs: 27.1, labor: 30.1, packaging: 3.7, controllables: 15.8, ebitda: 7.2 }
+  { id: "spdw", name: "Speedway", code: "SPDWY", baseSales: 208333, cogs: 25.9, labor: 29.2, packaging: 4.7, controllables: 14.9, ebitda: 8.6 },
+  { id: "gw", name: "Greenwood", code: "GW1273", baseSales: 250000, cogs: 24.8, labor: 27.6, packaging: 4.1, controllables: 13.4, ebitda: 12.4 },
+  { id: "pm", name: "Park Meridian", code: "PM 1275", baseSales: 166667, cogs: 26.7, labor: 31.4, packaging: 4.3, controllables: 16.4, ebitda: 5.8 },
+  { id: "cc", name: "Cool Creek", code: "CC 1364", baseSales: 225000, cogs: 25.2, labor: 29.0, packaging: 4.0, controllables: 14.6, ebitda: 9.5 },
+  { id: "htc", name: "Hamilton TC", code: "HTC1304", baseSales: 291667, cogs: 27.3, labor: 30.3, packaging: 4.2, controllables: 15.4, ebitda: 8.4 }
 ];
 
 const periods = ["Full Year 2024", "Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024"];
 const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const seasonality = [0.82, 0.87, 0.97, 1.04, 1.1, 1.15, 1.19, 1.16, 1.08, 1.12, 1.06, 1.24];
 const explorerTabs = ["Line Graph", "Rankings", "Heatmap", "Category Drilldown", "Full P&L"];
+
+const storeProfiles = {
+  htc: {
+    annualSales: 3500000,
+    occupancy: 19000,
+    salesShape: [0.78, 0.84, 0.95, 1.04, 1.12, 1.2, 1.24, 1.17, 1.08, 1.1, 1.03, 1.45],
+    cogs: [28.2, 28.1, 27.9, 27.7, 27.6, 27.4, 27.8, 27.5, 27.1, 27.0, 27.2, 27.6],
+    labor: [31.9, 31.5, 31.0, 30.6, 30.2, 29.8, 30.1, 29.9, 29.6, 29.8, 30.4, 30.7],
+    repairs: [3200, 2800, 3600, 4200, 3100, 3900, 4500, 4100, 3300, 3700, 5200, 4600],
+    controllables: [15.9, 15.8, 15.6, 15.4, 15.2, 15.0, 15.4, 15.3, 15.0, 15.1, 15.5, 15.7],
+    packaging: 4.2
+  },
+  pm: {
+    annualSales: 2000000,
+    occupancy: 12000,
+    salesShape: [0.86, 0.82, 0.94, 0.98, 1.05, 1.08, 1.12, 1.04, 0.98, 1.02, 0.96, 1.15],
+    cogs: [27.6, 27.8, 28.0, 28.4, 28.2, 27.9, 27.7, 27.6, 27.3, 27.2, 27.1, 27.4],
+    labor: [32.3, 32.1, 31.8, 31.6, 31.9, 32.4, 32.8, 33.1, 33.4, 33.8, 34.1, 34.4],
+    repairs: [1800, 2100, 2600, 11800, 2400, 2300, 3100, 2200, 1900, 2500, 2800, 2300],
+    controllables: [16.8, 17.0, 16.7, 17.4, 16.6, 16.2, 16.4, 16.9, 16.5, 16.8, 17.1, 16.7],
+    packaging: 4.25
+  },
+  gw: {
+    annualSales: 3000000,
+    occupancy: 7500,
+    salesShape: [0.83, 0.9, 0.99, 1.05, 1.1, 1.15, 1.18, 1.13, 1.07, 1.09, 1.02, 1.28],
+    cogs: [24.9, 24.8, 24.7, 24.6, 24.5, 24.4, 24.5, 24.6, 24.5, 24.4, 24.6, 24.7],
+    labor: [27.9, 27.8, 27.7, 27.5, 27.6, 27.8, 27.9, 27.8, 27.6, 27.7, 27.8, 27.9],
+    repairs: [1500, 1300, 1800, 1700, 1600, 1900, 2100, 1800, 1500, 1700, 1600, 2200],
+    controllables: [13.6, 13.4, 13.3, 13.2, 13.0, 13.1, 13.2, 13.3, 13.1, 13.0, 13.2, 13.4],
+    packaging: 4.05
+  },
+  cc: {
+    annualSales: 2700000,
+    occupancy: 10000,
+    salesShape: [0.81, 0.88, 0.96, 1.02, 1.08, 1.21, 1.22, 1.14, 1.03, 1.07, 1.0, 1.32],
+    cogs: [25.5, 25.3, 25.1, 25.0, 24.8, 25.2, 25.6, 25.0, 24.9, 25.1, 25.4, 25.2],
+    labor: [28.4, 28.6, 28.8, 29.1, 29.6, 31.2, 31.4, 30.7, 29.2, 28.9, 29.0, 29.6],
+    repairs: [2200, 2000, 2400, 6100, 2700, 2500, 3300, 2900, 2200, 2600, 2800, 3100],
+    controllables: [14.4, 14.5, 14.7, 14.8, 14.6, 14.9, 15.0, 14.8, 14.5, 14.6, 14.7, 14.8],
+    packaging: 4.0
+  },
+  spdw: {
+    annualSales: 2500000,
+    occupancy: 15000,
+    salesShape: [0.84, 0.86, 0.93, 1.0, 1.07, 1.14, 1.18, 1.09, 1.01, 1.04, 0.98, 1.25],
+    cogs: [25.8, 26.0, 26.4, 27.5, 26.8, 26.1, 25.9, 25.7, 25.8, 26.0, 26.2, 26.0],
+    labor: [31.6, 30.9, 30.1, 29.5, 28.9, 28.5, 28.2, 28.4, 28.6, 28.8, 29.2, 29.0],
+    repairs: [2300, 2500, 2900, 3400, 14500, 3600, 3100, 12800, 3300, 2800, 3000, 4100],
+    controllables: [15.0, 15.2, 15.1, 15.4, 16.1, 15.2, 15.0, 16.0, 15.1, 15.0, 15.3, 15.4],
+    packaging: 4.65
+  }
+};
 
 const sourceFiles = [
   "SPDWY: PD 1, 2, 3, 10, 11, 12, 13 workbooks",
@@ -52,38 +104,53 @@ function pct(value) {
 }
 
 function makeStoreMonths(store) {
+  const profile = storeProfiles[store.id];
+  const shapeTotal = profile.salesShape.reduce((sum, value) => sum + value, 0);
   return monthLabels.map((month, index) => {
-    const sales = Math.round(store.baseSales * seasonality[index] * (1 + Math.sin((index + store.baseSales / 10000) * 0.77) * 0.025));
-    const budget = Math.round(sales * (index % 4 === 0 ? 1.025 : index % 3 === 0 ? 0.985 : 1.01));
-    const prior = Math.round(sales * (index < 3 ? 0.94 : index < 8 ? 0.965 : 0.985));
-    const cogsPercent = store.cogs + Math.sin(index * 0.9) * 0.7 + (index === 10 ? 0.9 : 0);
-    const laborPercent = store.labor + Math.cos(index * 0.8) * 0.9 + (index === 0 || index === 1 ? 1.1 : 0);
-    const packagingPercent = store.packaging + Math.sin(index * 0.6) * 0.25;
-    const controllablesPercent = store.controllables + Math.cos(index * 0.5) * 0.55;
-    const occupancyPercent = 7.2 + (store.id === "pm" ? 2.6 : store.id === "gw" ? -0.6 : 0) + Math.sin(index * 0.42) * 0.25;
-    const repairsPercent = 1.3 + (store.id === "pm" && (index === 2 || index === 3) ? 3.2 : 0) + (store.id === "cc" && index === 3 ? 1.4 : 0);
-    const utilitiesPercent = 2.1 + Math.cos(index * 0.5) * 0.28 + (index >= 5 && index <= 7 ? 0.25 : 0);
-    const marketingPercent = 1.2 + (index === 10 ? 0.7 : 0) + Math.sin(index * 0.7) * 0.18;
-    const merchantFeesPercent = 2.7 + Math.sin(index * 0.4) * 0.12;
-    const ebitdaPercent = 100 - cogsPercent - laborPercent - packagingPercent - controllablesPercent - 19.6;
-    const netIncomePercent = ebitdaPercent - 2.4 - (store.id === "pm" && index === 3 ? 0.8 : 0);
+    const sales = Math.round(profile.annualSales * profile.salesShape[index] / shapeTotal);
+    const budget = Math.round(profile.annualSales / 12 * (0.96 + index * 0.006) * (index === 11 ? 1.08 : index >= 5 && index <= 7 ? 1.04 : 1));
+    const prior = Math.round(sales * (index < 3 ? 0.93 : index < 8 ? 0.965 : 0.985));
+    const cogsPercent = profile.cogs[index];
+    const laborPercent = profile.labor[index];
+    const packagingPercent = profile.packaging + (index % 3 - 1) * 0.08;
+    const occupancy = profile.occupancy + (index === 0 ? 300 : index === 6 ? 250 : 0);
+    const occupancyPercent = occupancy / sales * 100;
+    const repairs = profile.repairs[index];
+    const repairsPercent = repairs / sales * 100;
+    const utilitiesPercent = 2.0 + (index >= 5 && index <= 8 ? 0.42 : index <= 1 ? 0.18 : 0) + (store.id === "pm" ? 0.16 : 0);
+    const marketingPercent = 1.05 + (index === 10 || index === 11 ? 0.45 : 0) + (store.id === "gw" ? -0.12 : store.id === "pm" ? 0.18 : 0);
+    const merchantFeesPercent = 2.65 + (index >= 5 && index <= 7 ? 0.1 : 0) + (store.id === "htc" ? 0.06 : 0);
+    const controllablesPercent = profile.controllables[index];
+    const adminPercent = 3.2 + (store.id === "pm" ? 0.7 : store.id === "gw" ? -0.25 : 0);
+    const cogs = Math.round(sales * cogsPercent / 100);
+    const labor = Math.round(sales * laborPercent / 100);
+    const packaging = Math.round(sales * packagingPercent / 100);
+    const controllables = Math.round(sales * controllablesPercent / 100);
+    const utilities = Math.round(sales * utilitiesPercent / 100);
+    const marketing = Math.round(sales * marketingPercent / 100);
+    const merchantFees = Math.round(sales * merchantFeesPercent / 100);
+    const admin = Math.round(sales * adminPercent / 100);
+    const ebitda = sales - cogs - labor - packaging - controllables - occupancy - repairs - utilities - marketing - merchantFees - admin;
+    const ebitdaPercent = ebitda / sales * 100;
+    const netIncome = ebitda - Math.round(sales * 2.4 / 100);
+    const netIncomePercent = netIncome / sales * 100;
 
     return {
       month,
       sales,
       budget,
       prior,
-      cogs: Math.round(sales * cogsPercent / 100),
-      labor: Math.round(sales * laborPercent / 100),
-      packaging: Math.round(sales * packagingPercent / 100),
-      controllables: Math.round(sales * controllablesPercent / 100),
-      occupancy: Math.round(sales * occupancyPercent / 100),
-      repairs: Math.round(sales * repairsPercent / 100),
-      utilities: Math.round(sales * utilitiesPercent / 100),
-      marketing: Math.round(sales * marketingPercent / 100),
-      merchantFees: Math.round(sales * merchantFeesPercent / 100),
-      ebitda: Math.round(sales * ebitdaPercent / 100),
-      netIncome: Math.round(sales * netIncomePercent / 100),
+      cogs,
+      labor,
+      packaging,
+      controllables,
+      occupancy,
+      repairs,
+      utilities,
+      marketing,
+      merchantFees,
+      ebitda,
+      netIncome,
       cogsPercent,
       laborPercent,
       packagingPercent,
@@ -190,6 +257,33 @@ function statusFor(value, metric, viewMode) {
   const spread = value - metric.target;
   if (metric.higherGood) return value >= metric.target ? "Strong" : spread > -1.5 ? "Watch" : "Off Target";
   return value <= metric.target ? "Strong" : spread < 1.5 ? "Watch" : "High";
+}
+
+function niceStep(range, viewMode) {
+  if (viewMode === "percent") {
+    if (range <= 4) return 1;
+    if (range <= 10) return 2;
+    if (range <= 25) return 5;
+    return 10;
+  }
+  if (range <= 10000) return 2500;
+  if (range <= 50000) return 10000;
+  if (range <= 150000) return 25000;
+  if (range <= 400000) return 50000;
+  return 100000;
+}
+
+function axisTicks(values, metric, viewMode) {
+  const relevant = [...values, viewMode === "percent" && metric.target ? metric.target : null].filter((value) => Number.isFinite(value));
+  const rawMin = Math.min(...relevant);
+  const rawMax = Math.max(...relevant);
+  const padding = Math.max((rawMax - rawMin) * 0.12, viewMode === "percent" ? 1 : 2500);
+  const step = niceStep(rawMax - rawMin + padding * 2, viewMode);
+  const min = Math.max(0, Math.floor((rawMin - padding) / step) * step);
+  const max = Math.ceil((rawMax + padding) / step) * step;
+  const ticks = [];
+  for (let value = min; value <= max + step / 2; value += step) ticks.push(value);
+  return { min, max, ticks };
 }
 
 export default function PnlDemo() {
@@ -394,13 +488,14 @@ function MultiStoreLineGraph({ stores, rowsByStore, metric, viewMode, visibleSto
   const colors = ["#67d0b3", "#d8a84f", "#ff8d5a", "#8bb9ff", "#c59cff"];
   const visibleRows = stores.filter((store) => visibleStores.includes(store.id));
   const allValues = visibleRows.flatMap((store) => rowsByStore[store.id].map((row) => getMetric(row, metric, viewMode)));
-  const max = Math.max(...allValues, metric.target || 1);
-  const min = Math.min(...allValues, metric.target || 0);
+  const safeValues = allValues.length ? allValues : stores.flatMap((store) => rowsByStore[store.id].map((row) => getMetric(row, metric, viewMode)));
+  const axis = axisTicks(safeValues, metric, viewMode);
   const avgPoints = monthLabels.map((month, index) => {
     const values = stores.map((store) => getMetric(rowsByStore[store.id][index], metric, viewMode));
     return values.reduce((sum, value) => sum + value, 0) / values.length;
   });
-  const makePoints = (values) => values.map((value, index) => `${(index / 11) * 100},${88 - ((value - min) / Math.max(1, max - min)) * 76}`).join(" ");
+  const yFor = (value) => 88 - ((value - axis.min) / Math.max(1, axis.max - axis.min)) * 76;
+  const makePoints = (values) => values.map((value, index) => `${(index / 11) * 100},${yFor(value)}`).join(" ");
 
   return (
     <article className="explorer-card">
@@ -410,16 +505,26 @@ function MultiStoreLineGraph({ stores, rowsByStore, metric, viewMode, visibleSto
       </div>
       <div className="line-legend">{stores.map((store, index) => <button className={visibleStores.includes(store.id) ? "active" : ""} type="button" key={store.id} onClick={() => setVisibleStores((current) => current.includes(store.id) ? current.filter((id) => id !== store.id) : [...current, store.id])}><i style={{ background: colors[index] }} />{store.name}</button>)}</div>
       <div className="portfolio-line-chart">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-label={`${metric.label} line chart`}>
-          {visibleRows.map((store, index) => <polyline key={store.id} points={makePoints(rowsByStore[store.id].map((row) => getMetric(row, metric, viewMode)))} fill="none" stroke={colors[stores.findIndex((item) => item.id === store.id)]} strokeWidth="2.8" vectorEffect="non-scaling-stroke" />)}
-          <polyline className="benchmark-line" points={makePoints(avgPoints)} fill="none" stroke="#ffffff" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
-          {metric.target && viewMode === "percent" && <polyline className="target-line" points={makePoints(monthLabels.map(() => metric.target))} fill="none" stroke="#f2c66f" strokeWidth="2" vectorEffect="non-scaling-stroke" />}
-        </svg>
-        <div className="line-months">{monthLabels.map((month) => <span key={month}>{month}</span>)}</div>
+        <div className="line-chart-grid">
+          <div className="line-y-axis">{axis.ticks.slice().reverse().map((tick) => <span key={tick}>{formatMetric(tick, metric, viewMode)}</span>)}</div>
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-label={`${metric.label} line chart`}>
+            {axis.ticks.map((tick) => <line className="axis-gridline" key={tick} x1="0" x2="100" y1={yFor(tick)} y2={yFor(tick)} vectorEffect="non-scaling-stroke" />)}
+            {visibleRows.map((store) => <polyline key={store.id} points={makePoints(rowsByStore[store.id].map((row) => getMetric(row, metric, viewMode)))} fill="none" stroke={colors[stores.findIndex((item) => item.id === store.id)]} strokeWidth="2.8" vectorEffect="non-scaling-stroke" />)}
+            {visibleRows.flatMap((store) => rowsByStore[store.id].map((row, index) => {
+              const value = getMetric(row, metric, viewMode);
+              return <circle className="line-data-point" key={`${store.id}-${row.month}`} cx={(index / 11) * 100} cy={yFor(value)} r="1.15" fill={colors[stores.findIndex((item) => item.id === store.id)]}><title>{store.name} {row.month}: {formatMetric(value, metric, viewMode)}</title></circle>;
+            }))}
+            <polyline className="benchmark-line" points={makePoints(avgPoints)} fill="none" stroke="#ffffff" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
+            {metric.target && viewMode === "percent" && <polyline className="target-line" points={makePoints(monthLabels.map(() => metric.target))} fill="none" stroke="#f2c66f" strokeWidth="2" vectorEffect="non-scaling-stroke" />}
+          </svg>
+        </div>
+        <div className="line-months"><span />{monthLabels.map((month) => <span key={month}>{month}</span>)}</div>
       </div>
       <div className="line-tooltip-row">{visibleRows.map((store) => {
         const latest = rowsByStore[store.id][11];
-        return <span key={store.id}><strong>{store.name}</strong>{formatMetric(getMetric(latest, metric, viewMode), metric, viewMode)}</span>;
+        const high = Math.max(...rowsByStore[store.id].map((row) => getMetric(row, metric, viewMode)));
+        const low = Math.min(...rowsByStore[store.id].map((row) => getMetric(row, metric, viewMode)));
+        return <span key={store.id}><strong>{store.name}</strong>{formatMetric(getMetric(latest, metric, viewMode), metric, viewMode)}<small>Range {formatMetric(low, metric, viewMode)} - {formatMetric(high, metric, viewMode)}</small></span>;
       })}</div>
     </article>
   );
