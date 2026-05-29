@@ -2812,6 +2812,7 @@ textarea {
 }
 
 .inv-panel {
+  grid-column: span 6;
   min-width: 0;
   padding: 18px;
 }
@@ -4560,6 +4561,7 @@ textarea {
 
   .inv-span-7,
   .inv-span-5,
+  .inv-panel,
   .inv-wide {
     grid-column: 1 / -1;
   }
