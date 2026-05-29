@@ -95,6 +95,64 @@ textarea {
   font-size: 0.92rem;
 }
 
+.modules-nav {
+  position: relative;
+}
+
+.modules-trigger {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 5px;
+  padding: 0;
+}
+
+.modules-menu {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(221, 228, 232, 0.92);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  display: grid;
+  gap: 2px;
+  left: 50%;
+  max-height: min(72vh, 620px);
+  min-width: 320px;
+  opacity: 0;
+  overflow: auto;
+  padding: 8px;
+  pointer-events: none;
+  position: absolute;
+  top: calc(100% + 16px);
+  transform: translateX(-50%) translateY(8px);
+  transition: opacity 160ms ease, transform 160ms ease;
+  z-index: 40;
+}
+
+.modules-menu a {
+  border-radius: 8px;
+  color: #21313b;
+  font-weight: 800;
+  padding: 10px 12px;
+}
+
+.modules-menu a:hover,
+.modules-menu a:focus {
+  background: #edf5f2;
+  color: var(--teal-dark);
+}
+
+.modules-nav:hover .modules-menu,
+.modules-nav:focus-within .modules-menu,
+.modules-nav.open .modules-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
 .nav-cta {
   background: var(--gold);
   border-radius: 8px;
@@ -538,6 +596,242 @@ textarea {
 
 .footer span {
   color: #b8c5ce;
+}
+
+.modules-page {
+  background: var(--soft);
+}
+
+.modules-hero {
+  align-items: center;
+  background:
+    linear-gradient(135deg, rgba(16, 24, 32, 0.96), rgba(21, 38, 55, 0.94)),
+    radial-gradient(circle at 82% 18%, rgba(216, 168, 79, 0.24), transparent 28%);
+  color: var(--white);
+  display: grid;
+  gap: 44px;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.72fr);
+  min-height: 620px;
+  padding: 78px max(22px, calc((100vw - 1180px) / 2 + 22px));
+}
+
+.modules-hero h1,
+.modules-hub-section h2,
+.intelligence-layout h2 {
+  letter-spacing: 0;
+  line-height: 1.02;
+  margin: 0;
+}
+
+.modules-hero h1 {
+  font-size: clamp(3rem, 6vw, 5.2rem);
+  max-width: 900px;
+}
+
+.modules-hero p:not(.eyebrow),
+.modules-hero-panel p,
+.intelligence-layout p {
+  color: #d7e0e4;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  max-width: 760px;
+}
+
+.modules-hero-panel {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+  padding: 28px;
+}
+
+.modules-hero-panel span,
+.module-chip {
+  color: var(--gold);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.modules-hero-panel strong {
+  display: block;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  line-height: 1.05;
+  margin: 12px 0;
+}
+
+.modules-hub-section {
+  display: grid;
+  gap: 34px;
+  grid-template-columns: minmax(280px, 0.78fr) minmax(0, 1.22fr);
+}
+
+.hub-diagram {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 22px;
+  grid-template-columns: minmax(230px, 0.8fr) minmax(0, 1.2fr);
+  padding: 24px;
+}
+
+.hub-core {
+  background:
+    linear-gradient(135deg, var(--charcoal), var(--navy)),
+    radial-gradient(circle at 30% 20%, rgba(216, 168, 79, 0.22), transparent 35%);
+  border-radius: 8px;
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 260px;
+  padding: 24px;
+}
+
+.hub-core span {
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.hub-core strong {
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  line-height: 1.04;
+  margin: 12px 0;
+}
+
+.hub-core p {
+  color: #d7e0e4;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.hub-system-grid,
+.modules-card-grid,
+.secondary-module-grid,
+.signal-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.hub-system-grid {
+  align-content: center;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hub-system-grid span {
+  background: #f7faf8;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--teal);
+  border-radius: 8px;
+  font-weight: 850;
+  padding: 15px;
+}
+
+.modules-card-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.module-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(16, 24, 32, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 280px;
+  padding: 22px;
+}
+
+.module-card h3 {
+  font-size: 1.25rem;
+  line-height: 1.18;
+  margin: 12px 0 0;
+}
+
+.module-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.module-status {
+  align-items: center;
+  color: var(--teal-dark);
+  display: inline-flex;
+  font-size: 0.88rem;
+  font-weight: 900;
+  gap: 7px;
+}
+
+.secondary-modules-section {
+  padding-top: 20px;
+}
+
+.secondary-module-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.module-card.compact {
+  box-shadow: none;
+  min-height: 190px;
+}
+
+.module-card.compact .module-chip {
+  color: var(--teal-dark);
+}
+
+.intelligence-section {
+  background: var(--charcoal);
+  color: var(--white);
+}
+
+.intelligence-layout {
+  display: grid;
+  gap: 42px;
+  grid-template-columns: 0.82fr 1.18fr;
+}
+
+.intelligence-layout h2 {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+}
+
+.intelligence-flow {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.intelligence-flow span {
+  background: rgba(216, 168, 79, 0.15);
+  border: 1px solid rgba(216, 168, 79, 0.34);
+  border-radius: 8px;
+  color: #f5dfad;
+  font-weight: 900;
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.signal-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.signal-grid span {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #d7e0e4;
+  font-weight: 800;
+  line-height: 1.4;
+  padding: 16px;
+}
+
+.modules-cta {
+  padding-top: 54px;
 }
 
 .demo-shell {
@@ -1257,14 +1551,39 @@ textarea {
 }
 
 @media (max-width: 980px) {
+  .navbar {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
   .nav-links {
-    display: none;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    gap: 12px;
+    order: 3;
+  }
+
+  .modules-menu {
+    left: 0;
+    min-width: min(92vw, 340px);
+    top: calc(100% + 10px);
+    transform: translateY(8px);
+  }
+
+  .modules-nav:hover .modules-menu,
+  .modules-nav:focus-within .modules-menu,
+  .modules-nav.open .modules-menu {
+    transform: translateY(0);
   }
 
   .hero,
   .split-section,
   .audience-layout,
-  .contact-section {
+  .contact-section,
+  .modules-hero,
+  .modules-hub-section,
+  .hub-diagram,
+  .intelligence-layout {
     grid-template-columns: 1fr;
   }
 
@@ -1281,8 +1600,23 @@ textarea {
   .principle-grid,
   .feature-grid,
   .step-grid,
-  .service-grid {
+  .service-grid,
+  .modules-card-grid,
+  .secondary-module-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .modules-hero {
+    min-height: auto;
+    padding-top: 62px;
+  }
+
+  .hub-core {
+    min-height: 220px;
+  }
+
+  .intelligence-flow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -1296,6 +1630,32 @@ textarea {
     flex-direction: column;
     gap: 12px;
     position: static;
+  }
+
+  .nav-links {
+    align-items: stretch;
+    display: grid;
+    gap: 10px;
+    order: 0;
+  }
+
+  .modules-trigger {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .modules-menu {
+    max-height: none;
+    min-width: 0;
+    position: static;
+    transform: none;
+    width: 100%;
+  }
+
+  .modules-nav:hover .modules-menu,
+  .modules-nav:focus-within .modules-menu,
+  .modules-nav.open .modules-menu {
+    transform: none;
   }
 
   .nav-cta {
@@ -1341,7 +1701,12 @@ textarea {
   .step-grid,
   .service-grid,
   .preview-metrics,
-  .contact-form {
+  .contact-form,
+  .hub-system-grid,
+  .modules-card-grid,
+  .secondary-module-grid,
+  .intelligence-flow,
+  .signal-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1355,6 +1720,20 @@ textarea {
   .cta-card,
   .contact-form {
     padding: 20px;
+  }
+
+  .modules-hero {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .modules-hero h1 {
+    font-size: 2.55rem;
+  }
+
+  .module-card,
+  .module-card.compact {
+    min-height: 0;
   }
 }
 
