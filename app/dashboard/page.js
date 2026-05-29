@@ -161,6 +161,7 @@ export default function DashboardDemo() {
           <Image src="/demo-assets/fork-ale-mark.png" alt="Fork & Ale mark" width={74} height={74} />
           <div>
             <Link className="back-link" href="/"><ArrowLeft size={16} /> Restaurant Intelligence</Link>
+            <Link className="back-link demo-alt-link" href="/pnl-demo">P&L Module Demo</Link>
             <h1>Fork & Ale Operations Dashboard</h1>
             <p>Realistic tester view built from historical Fork & Ale DSRs, payroll exports, top-server report, PMIX, schedules, menu files, AORs, and a modeled full-year operating layer.</p>
           </div>
