@@ -1,25 +1,13 @@
 export const moduleLinks = [
   { title: "Modules Overview", href: "/modules" },
-  { title: "Sales & Labor", href: "/modules#sales-labor" },
-  { title: "Shift Operations", href: "/modules#shift-operations" },
-  { title: "Guest Feedback & Reviews", href: "/modules#guest-feedback-reviews" },
-  { title: "Scheduling & Staffing", href: "/modules#scheduling-staffing" },
-  { title: "Financials / P&L", href: "/modules#financials-p-l" },
-  { title: "Inventory & Food Cost", href: "/modules#inventory-food-cost" },
-  { title: "Email Intelligence", href: "/modules#email-intelligence" },
-  { title: "Online Ordering & Delivery", href: "/modules#online-ordering-delivery" },
-  { title: "Health Audits & Food Safety", href: "/modules#health-audits-food-safety" },
-  { title: "Training & Compliance", href: "/modules#training-compliance" },
-  { title: "Catering & Events", href: "/modules#catering-events" },
-  { title: "Maintenance & Facilities", href: "/modules#maintenance-facilities" },
-  { title: "Loyalty & CRM", href: "/modules#loyalty-crm" },
-  { title: "Marketing & Promotions", href: "/modules#marketing-promotions" },
-  { title: "Recruiting & Hiring", href: "/modules#recruiting-hiring" },
-  { title: "Employee Communication", href: "/modules#employee-communication" },
-  { title: "Vendor Management", href: "/modules#vendor-management" },
-  { title: "Cash Management", href: "/modules#cash-management" },
-  { title: "Loss Prevention / Security", href: "/modules#loss-prevention-security" },
-  { title: "District / Area Manager Reporting", href: "/modules#district-area-manager-reporting" }
+  { title: "Sales & Labor", href: "/modules/sales-labor" },
+  { title: "Guest Feedback", href: "/modules#guest-feedback-reviews" },
+  { title: "Shift Notes", href: "/modules#shift-operations" },
+  { title: "Inventory / Purchasing", href: "/modules#inventory-food-cost" },
+  { title: "Reviews & Reputation", href: "/modules#guest-feedback-reviews" },
+  { title: "Manager Log", href: "/modules#shift-operations" },
+  { title: "Financial Snapshot", href: "/pnl-demo" },
+  { title: "Custom Dashboards", href: "/dashboard" }
 ];
 
 export const mainModules = [
