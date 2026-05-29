@@ -1127,7 +1127,7 @@ textarea {
 }
 
 .labeled-bars span {
-  align-self: end;
+  align-self: flex-end;
   width: 100%;
 }
 
@@ -1843,7 +1843,7 @@ textarea {
 }
 
 .fork-bar-chart span {
-  align-self: end;
+  align-self: flex-end;
   background: linear-gradient(180deg, #68d2b4, var(--teal));
   border-radius: 7px 7px 0 0;
   width: 100%;
@@ -2100,6 +2100,698 @@ textarea {
 .flag-list span {
   background: rgba(103, 208, 179, 0.14);
   color: #8ce1c5;
+}
+
+.inventory-demo-shell {
+  background:
+    linear-gradient(180deg, #f4faf7 0%, #eef5f2 42%, #f8faf8 100%);
+  color: #18303a;
+  min-height: 100vh;
+  padding: 22px;
+}
+
+.inventory-hero,
+.sync-strip,
+.inv-kpi-grid,
+.inventory-grid {
+  margin: 0 auto 16px;
+  max-width: 1480px;
+}
+
+.inventory-hero {
+  align-items: stretch;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) 430px;
+}
+
+.hh-brand-block,
+.inventory-actions,
+.sync-strip,
+.inv-kpi,
+.inv-panel {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d9e7e1;
+  border-radius: 14px;
+  box-shadow: 0 18px 44px rgba(32, 70, 72, 0.09);
+}
+
+.hh-brand-block {
+  padding: 28px;
+}
+
+.hh-back {
+  color: #1b7f72;
+  display: inline-flex;
+  font-size: 0.86rem;
+  font-weight: 900;
+  margin-bottom: 14px;
+}
+
+.hh-brand {
+  align-items: center;
+  display: flex;
+  gap: 13px;
+  margin-bottom: 24px;
+}
+
+.hh-logo {
+  align-items: center;
+  background: linear-gradient(135deg, #1b7f72, #7fb8cf);
+  border-radius: 14px;
+  color: #fff;
+  display: inline-flex;
+  height: 52px;
+  justify-content: center;
+  position: relative;
+  width: 52px;
+}
+
+.hh-logo svg:last-child {
+  color: #ffc66f;
+  margin-left: -7px;
+}
+
+.hh-brand strong {
+  display: block;
+  font-size: 1.3rem;
+}
+
+.hh-brand small,
+.hh-brand-block p,
+.inv-panel-heading p,
+.sync-strip span,
+.inv-kpi span,
+.inv-kpi small,
+.food-cost-summary span,
+.category-stack footer,
+.price-watch-list p,
+.price-watch-list small,
+.mini-inv-table small,
+.po-list span,
+.po-list p,
+.po-list small,
+.inventory-insights p {
+  color: #647680;
+}
+
+.hh-brand-block h1 {
+  font-size: clamp(2.25rem, 5vw, 4.4rem);
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0 0 14px;
+  max-width: 950px;
+}
+
+.hh-brand-block p {
+  font-size: 1.06rem;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 880px;
+}
+
+.inventory-actions {
+  display: grid;
+  gap: 13px;
+  padding: 20px;
+}
+
+.inventory-actions label {
+  color: #40535d;
+  display: grid;
+  font-size: 0.82rem;
+  font-weight: 900;
+  gap: 7px;
+}
+
+.inventory-actions select,
+.inv-search input {
+  background: #f7fbf9;
+  border: 1px solid #d6e5df;
+  border-radius: 10px;
+  color: #18303a;
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.inventory-actions div,
+.po-actions {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.inventory-actions button,
+.po-actions button {
+  align-items: center;
+  background: #18303a;
+  border: 0;
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 850;
+  gap: 7px;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.inventory-actions button:nth-child(3),
+.inventory-actions button:nth-child(4),
+.po-actions button:first-child {
+  background: #1b7f72;
+}
+
+.sync-strip {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 14px;
+}
+
+.sync-strip div {
+  background: #f7fbf9;
+  border: 1px solid #dceae5;
+  border-radius: 12px;
+  display: grid;
+  gap: 4px;
+  padding: 13px;
+}
+
+.inv-kpi-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.inv-kpi {
+  border-top: 4px solid #8fb0bd;
+  display: grid;
+  gap: 10px;
+  min-height: 162px;
+  padding: 16px;
+}
+
+.inv-kpi.good,
+.inv-kpi.improving {
+  border-top-color: #1b7f72;
+}
+
+.inv-kpi.watch {
+  border-top-color: #d8a84f;
+}
+
+.inv-kpi.high-risk {
+  border-top-color: #c96d34;
+}
+
+.inv-kpi strong {
+  display: block;
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  margin-top: 5px;
+}
+
+.inv-spark {
+  color: #1b7f72;
+  height: 34px;
+  width: 100%;
+}
+
+.inv-kpi.high-risk .inv-spark {
+  color: #c96d34;
+}
+
+.inv-kpi.watch .inv-spark {
+  color: #d8a84f;
+}
+
+.inv-kpi footer {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.inv-kpi small {
+  align-items: center;
+  display: inline-flex;
+  gap: 3px;
+}
+
+.inv-kpi b,
+.inv-badge {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.74rem;
+  font-weight: 900;
+  padding: 6px 8px;
+}
+
+.inv-kpi.good b,
+.inv-kpi.improving b,
+.inv-badge.healthy,
+.inv-badge.good,
+.inv-badge.star {
+  background: #dff4ed;
+  color: #0e6b5e;
+}
+
+.inv-kpi.watch b,
+.inv-badge.watch,
+.inv-badge.review,
+.inv-badge.workhorse,
+.inv-badge.portion-check,
+.inv-badge.reprice {
+  background: #fff3d8;
+  color: #9a6712;
+}
+
+.inv-kpi.high-risk b,
+.inv-badge.below-par,
+.inv-badge.variance,
+.inv-badge.high-variance,
+.inv-badge.low-margin {
+  background: #ffe4da;
+  color: #a84323;
+}
+
+.inv-badge.overstock,
+.inv-badge.puzzle {
+  background: #dcecff;
+  color: #2b5c91;
+}
+
+.inv-badge.price-alert {
+  background: #eee7ff;
+  color: #6a42a5;
+}
+
+.good-change {
+  color: #0e6b5e;
+}
+
+.bad-change {
+  color: #b34f2b;
+}
+
+.inventory-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.inv-panel {
+  min-width: 0;
+  padding: 18px;
+}
+
+.inv-span-7 { grid-column: span 7; }
+.inv-span-5 { grid-column: span 5; }
+.inv-wide { grid-column: 1 / -1; }
+
+.inv-panel-heading {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.inv-panel-heading h2 {
+  font-size: 1.16rem;
+  margin: 0 0 4px;
+}
+
+.inv-panel-heading p {
+  line-height: 1.45;
+  margin: 0;
+}
+
+.food-cost-summary {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.food-cost-summary div {
+  background: #f7fbf9;
+  border: 1px solid #dceae5;
+  border-radius: 12px;
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+}
+
+.food-cost-summary strong {
+  font-size: 1.25rem;
+}
+
+.food-cost-chart {
+  align-items: end;
+  background: #f7fbf9;
+  border: 1px solid #dceae5;
+  border-radius: 14px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  height: 310px;
+  padding: 16px;
+}
+
+.food-cost-day {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  height: 100%;
+}
+
+.food-cost-day div {
+  align-items: flex-end;
+  display: flex;
+  gap: 3px;
+  height: 250px;
+  justify-content: center;
+}
+
+.food-cost-day span {
+  border-radius: 6px 6px 0 0;
+  width: 28%;
+}
+
+.food-cost-day small {
+  color: #647680;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.food-cost-day .actual,
+.inv-legend .actual {
+  background: #c96d34;
+}
+
+.food-cost-day .theoretical,
+.inv-legend .theoretical {
+  background: #1b7f72;
+}
+
+.food-cost-day .target,
+.inv-legend .target {
+  background: #7fb8cf;
+}
+
+.inv-legend {
+  align-items: center;
+  color: #647680;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.inv-legend span {
+  border-radius: 999px;
+  height: 9px;
+  width: 9px;
+}
+
+.category-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.category-stack div {
+  background: #f7fbf9;
+  border: 1px solid #dceae5;
+  border-left: 4px solid #8fb0bd;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.category-stack div.high-risk {
+  border-left-color: #c96d34;
+}
+
+.category-stack div.good {
+  border-left-color: #1b7f72;
+}
+
+.category-stack div.watch {
+  border-left-color: #d8a84f;
+}
+
+.category-stack div.overstock {
+  border-left-color: #7fb8cf;
+}
+
+.category-stack header,
+.category-stack footer,
+.inv-kpi footer,
+.po-list footer {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.category-stack header span {
+  color: #647680;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.category-stack i,
+.waste-bars i {
+  background: #e4eee9;
+  border-radius: 999px;
+  display: block;
+  height: 9px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.category-stack b,
+.waste-bars b {
+  background: linear-gradient(90deg, #1b7f72, #7fb8cf);
+  display: block;
+  height: 100%;
+}
+
+.category-stack footer {
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+}
+
+.inv-search {
+  align-items: center;
+  color: #647680;
+  display: flex;
+  gap: 8px;
+}
+
+.inv-search input {
+  width: 260px;
+}
+
+.inv-table-wrap {
+  overflow: auto;
+}
+
+.inv-table-wrap.compact {
+  max-height: 460px;
+}
+
+.inv-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 1160px;
+  width: 100%;
+}
+
+.inv-table th {
+  background: #f1f7f4;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.inv-table th,
+.inv-table td,
+.mini-inv-table td {
+  border-bottom: 1px solid #e0ebe6;
+  padding: 11px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.inv-table th button {
+  background: transparent;
+  border: 0;
+  color: #526771;
+  cursor: pointer;
+  font-size: 0.74rem;
+  font-weight: 900;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+.inv-table tr.below-par td {
+  background: #fff4ef;
+}
+
+.inv-table tr.variance td {
+  background: #fff9e9;
+}
+
+.inv-table tr.overstock td {
+  background: #f0f7ff;
+}
+
+.inv-table tr.price-alert td {
+  background: #f7f2ff;
+}
+
+.price-watch-list,
+.po-list,
+.inventory-insights {
+  display: grid;
+  gap: 10px;
+}
+
+.price-watch-list div,
+.po-list div,
+.inventory-insights p,
+.inv-insight-callout {
+  background: #f7fbf9;
+  border: 1px solid #dceae5;
+  border-radius: 12px;
+  padding: 13px;
+}
+
+.price-watch-list span {
+  color: #1b7f72;
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.price-watch-list strong,
+.po-list strong {
+  display: block;
+  margin: 4px 0;
+}
+
+.price-watch-list p,
+.price-watch-list small,
+.po-list p,
+.po-list small,
+.inv-insight-callout,
+.inventory-insights p {
+  line-height: 1.42;
+  margin: 0;
+}
+
+.inv-insight-callout {
+  background: #fff7e4;
+  border-color: #f0d99f;
+  color: #7b5714;
+  font-weight: 850;
+  margin-top: 12px;
+}
+
+.waste-layout {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 0.8fr;
+}
+
+.waste-bars {
+  display: grid;
+  gap: 10px;
+}
+
+.waste-bars div {
+  display: grid;
+  gap: 4px;
+}
+
+.waste-bars small {
+  color: #647680;
+}
+
+.waste-by-day {
+  align-items: end;
+  background: #f7fbf9;
+  border: 1px solid #dceae5;
+  border-radius: 12px;
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(14, minmax(8px, 1fr));
+  min-height: 190px;
+  padding: 12px;
+}
+
+.waste-by-day span {
+  background: linear-gradient(180deg, #d8a84f, #c96d34);
+  border-radius: 6px 6px 0 0;
+}
+
+.mini-inv-table {
+  border-collapse: collapse;
+  margin-top: 14px;
+  width: 100%;
+}
+
+.mini-inv-table small {
+  display: block;
+  margin-top: 3px;
+}
+
+.menu-profit-layout {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 360px minmax(0, 1fr);
+}
+
+.quadrant {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.quadrant div {
+  background: linear-gradient(135deg, #f7fbf9, #eef7f6);
+  border: 1px solid #dceae5;
+  border-radius: 14px;
+  display: grid;
+  min-height: 142px;
+  padding: 14px;
+}
+
+.quadrant span {
+  align-self: flex-end;
+  color: #1b7f72;
+  font-weight: 900;
+}
+
+.po-list div {
+  display: grid;
+  gap: 3px;
+}
+
+.po-list b.high {
+  color: #c96d34;
+}
+
+.po-list b.medium {
+  color: #9a6712;
+}
+
+.po-list b.low {
+  color: #1b7f72;
+}
+
+.audit-table td {
+  white-space: normal;
 }
 
 @media (max-width: 980px) {
@@ -2380,6 +3072,25 @@ textarea {
   .day-detail-grid {
     grid-template-columns: 1fr;
   }
+
+  .inventory-hero,
+  .sync-strip,
+  .inv-kpi-grid,
+  .inventory-grid,
+  .food-cost-summary,
+  .menu-profit-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .inv-span-7,
+  .inv-span-5,
+  .inv-wide {
+    grid-column: 1 / -1;
+  }
+
+  .waste-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
@@ -2422,5 +3133,44 @@ textarea {
   .heat-hours {
     grid-template-columns: 36px repeat(10, 28px);
     overflow-x: auto;
+  }
+
+  .inventory-demo-shell {
+    padding: 12px;
+  }
+
+  .hh-brand-block,
+  .inventory-actions,
+  .inv-panel {
+    padding: 14px;
+  }
+
+  .hh-brand-block h1 {
+    font-size: 2.25rem;
+  }
+
+  .inventory-actions div,
+  .po-actions,
+  .quadrant {
+    grid-template-columns: 1fr;
+  }
+
+  .inv-panel-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .inv-search,
+  .inv-search input {
+    width: 100%;
+  }
+
+  .food-cost-chart {
+    gap: 5px;
+    overflow-x: auto;
+  }
+
+  .food-cost-day {
+    min-width: 42px;
   }
 }

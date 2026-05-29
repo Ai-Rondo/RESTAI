@@ -1,9 +1,9 @@
 export const moduleLinks = [
   { title: "Modules Overview", href: "/modules" },
   { title: "Sales & Labor", href: "/modules/sales-labor" },
+  { title: "Inventory & Food Cost", href: "/modules/inventory-food-cost" },
   { title: "Guest Feedback", href: "/modules#guest-feedback-reviews" },
   { title: "Shift Notes", href: "/modules#shift-operations" },
-  { title: "Inventory / Purchasing", href: "/modules#inventory-food-cost" },
   { title: "Reviews & Reputation", href: "/modules#guest-feedback-reviews" },
   { title: "Manager Log", href: "/modules#shift-operations" },
   { title: "Financial Snapshot", href: "/pnl-demo" },
