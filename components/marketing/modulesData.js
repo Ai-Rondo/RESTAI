@@ -2,10 +2,9 @@ export const moduleLinks = [
   { title: "Modules Overview", href: "/modules" },
   { title: "Sales & Labor", href: "/modules/sales-labor" },
   { title: "Inventory & Food Cost", href: "/modules/inventory-food-cost" },
+  { title: "Shift Operations", href: "/modules/shift-operations" },
   { title: "Guest Feedback", href: "/modules#guest-feedback-reviews" },
-  { title: "Shift Notes", href: "/modules#shift-operations" },
   { title: "Reviews & Reputation", href: "/modules#guest-feedback-reviews" },
-  { title: "Manager Log", href: "/modules#shift-operations" },
   { title: "Financial Snapshot", href: "/pnl-demo" },
   { title: "Custom Dashboards", href: "/dashboard" }
 ];

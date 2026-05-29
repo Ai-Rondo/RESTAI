@@ -2794,6 +2794,598 @@ textarea {
   white-space: normal;
 }
 
+.shift-ops-shell {
+  background:
+    linear-gradient(180deg, #fff8eb 0%, #f8efe0 46%, #fffaf0 100%);
+  color: #2f251f;
+  min-height: 100vh;
+  padding: 22px;
+}
+
+.shift-hero,
+.shift-sync-strip,
+.shift-kpi-grid,
+.shift-grid {
+  margin: 0 auto 16px;
+  max-width: 1480px;
+}
+
+.shift-hero {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) 455px;
+}
+
+.shift-hero > div,
+.shift-controls,
+.shift-sync-strip,
+.shift-kpi,
+.shift-panel {
+  background: rgba(255, 253, 247, 0.94);
+  border: 1px solid #ead9bd;
+  border-radius: 18px;
+  box-shadow: 0 18px 44px rgba(90, 56, 31, 0.1);
+}
+
+.shift-hero > div {
+  padding: 28px;
+}
+
+.shift-back {
+  color: #bd5d26;
+  display: inline-flex;
+  font-size: 0.86rem;
+  font-weight: 900;
+  margin-bottom: 16px;
+}
+
+.ember-brand {
+  align-items: center;
+  display: flex;
+  gap: 13px;
+  margin-bottom: 24px;
+}
+
+.ember-brand > span {
+  align-items: center;
+  background: linear-gradient(135deg, #2f251f, #bd5d26);
+  border-radius: 17px;
+  color: #ffd681;
+  display: inline-flex;
+  height: 54px;
+  justify-content: center;
+  position: relative;
+  width: 54px;
+}
+
+.ember-brand b {
+  border: 3px solid #fff1c9;
+  border-top: 0;
+  border-radius: 0 0 18px 18px;
+  bottom: 10px;
+  height: 13px;
+  position: absolute;
+  width: 28px;
+}
+
+.ember-brand strong {
+  display: block;
+  font-size: 1.3rem;
+}
+
+.ember-brand small,
+.shift-hero p,
+.shift-controls label,
+.shift-sync-strip span,
+.shift-kpi span,
+.shift-kpi small,
+.shift-panel-heading p,
+.timeline-item footer,
+.handoff-list p,
+.checklist-detail p,
+.shift-note-card,
+.staffing-notes p,
+.shift-insights p {
+  color: #76695f;
+}
+
+.shift-hero h1 {
+  font-size: clamp(2.25rem, 5vw, 4.4rem);
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0 0 14px;
+}
+
+.shift-hero p {
+  font-size: 1.06rem;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 880px;
+}
+
+.shift-controls {
+  display: grid;
+  gap: 11px;
+  padding: 18px;
+}
+
+.shift-controls label {
+  display: grid;
+  font-size: 0.82rem;
+  font-weight: 900;
+  gap: 7px;
+}
+
+.shift-controls label svg {
+  margin-right: 5px;
+  vertical-align: -3px;
+}
+
+.shift-controls select,
+.shift-panel-heading select,
+.shift-search input {
+  background: #fffaf0;
+  border: 1px solid #e3cfaa;
+  border-radius: 11px;
+  color: #2f251f;
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.shift-controls div,
+.shift-chart-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.shift-controls button,
+.send-recap,
+.shift-chart-buttons button {
+  align-items: center;
+  background: #2f251f;
+  border: 0;
+  border-radius: 11px;
+  color: #fff8eb;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 850;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.shift-controls button:nth-child(1),
+.shift-controls button:nth-child(2),
+.send-recap,
+.shift-chart-buttons button.active {
+  background: #bd5d26;
+}
+
+.shift-sync-strip {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: 13px;
+}
+
+.shift-sync-strip div {
+  background: #fff8eb;
+  border: 1px solid #ead9bd;
+  border-radius: 13px;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+}
+
+.shift-kpi-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.shift-kpi {
+  border-top: 4px solid #c9aa79;
+  display: grid;
+  gap: 9px;
+  min-height: 150px;
+  padding: 15px;
+}
+
+.shift-kpi.good { border-top-color: #478b60; }
+.shift-kpi.watch { border-top-color: #d8a84f; }
+.shift-kpi.critical { border-top-color: #b8452e; }
+
+.shift-kpi strong {
+  display: block;
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  margin-top: 4px;
+}
+
+.shift-mini-trend {
+  color: #bd5d26;
+  height: 32px;
+  width: 100%;
+}
+
+.shift-kpi.good .shift-mini-trend { color: #478b60; }
+.shift-kpi.critical .shift-mini-trend { color: #b8452e; }
+
+.shift-kpi footer,
+.shift-panel-heading,
+.timeline-item header,
+.timeline-item footer,
+.cash-grid,
+.drawer-list span,
+.staffing-grid {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.shift-kpi b,
+.status-good,
+.timeline-item em,
+.shift-table span {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 900;
+  padding: 6px 8px;
+}
+
+.shift-kpi.good b,
+.status-good,
+.shift-table .good span,
+.shift-table .pass span,
+.shift-table .resolved span {
+  background: #e1f1e4;
+  color: #306f49;
+}
+
+.shift-kpi.watch b,
+.timeline-item em,
+.shift-table .warning span,
+.shift-table .high span,
+.shift-table .medium span {
+  background: #fff0c9;
+  color: #94620f;
+}
+
+.shift-kpi.critical b,
+.shift-table .critical span {
+  background: #ffe1d7;
+  color: #a03b25;
+}
+
+.shift-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.shift-panel {
+  min-width: 0;
+  padding: 18px;
+}
+
+.shift-span-7 { grid-column: span 7; }
+.shift-span-5 { grid-column: span 5; }
+.shift-wide { grid-column: 1 / -1; }
+
+.shift-panel-heading {
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.shift-panel-heading h2 {
+  align-items: center;
+  display: flex;
+  font-size: 1.15rem;
+  gap: 8px;
+  margin: 0 0 4px;
+}
+
+.shift-panel-heading p {
+  line-height: 1.45;
+  margin: 0;
+}
+
+.shift-bar-chart {
+  align-items: flex-end;
+  background: #fff8eb;
+  border: 1px solid #ead9bd;
+  border-radius: 15px;
+  display: grid;
+  gap: 9px;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  height: 290px;
+  padding: 16px;
+}
+
+.shift-bar-chart div {
+  align-items: center;
+  display: grid;
+  gap: 7px;
+  height: 100%;
+}
+
+.shift-bar-chart span {
+  align-self: flex-end;
+  background: linear-gradient(180deg, #ffbc67, #bd5d26);
+  border-radius: 8px 8px 0 0;
+  width: 100%;
+}
+
+.shift-bar-chart small,
+.shift-heatmap small {
+  color: #76695f;
+  font-size: 0.74rem;
+  text-align: center;
+}
+
+.shift-heatmap {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.shift-heatmap div {
+  display: grid;
+  gap: 7px;
+}
+
+.shift-heatmap span {
+  background: #bd5d26;
+  border-radius: 9px;
+  min-height: 54px;
+}
+
+.shift-timeline {
+  display: grid;
+  gap: 12px;
+}
+
+.timeline-item {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 86px minmax(0, 1fr);
+  position: relative;
+}
+
+.timeline-item time {
+  color: #bd5d26;
+  font-weight: 900;
+  padding-top: 14px;
+}
+
+.timeline-item > div,
+.handoff-list div,
+.checklist-grid button,
+.checklist-detail,
+.cash-grid div,
+.drawer-list span,
+.staffing-grid div,
+.staffing-notes p,
+.shift-insights p,
+.shift-note-card {
+  background: #fff8eb;
+  border: 1px solid #ead9bd;
+  border-radius: 14px;
+}
+
+.timeline-item > div {
+  border-left: 4px solid #d8a84f;
+  padding: 14px;
+}
+
+.timeline-item.critical > div {
+  border-left-color: #b8452e;
+}
+
+.timeline-item.high > div {
+  border-left-color: #bd5d26;
+}
+
+.timeline-item header {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.timeline-item header span {
+  color: #bd5d26;
+  font-weight: 900;
+}
+
+.timeline-item p,
+.handoff-list p,
+.checklist-detail p,
+.shift-note-card,
+.staffing-notes p,
+.shift-insights p {
+  line-height: 1.46;
+}
+
+.handoff-list,
+.staffing-notes,
+.shift-insights {
+  display: grid;
+  gap: 10px;
+}
+
+.handoff-list div,
+.staffing-notes p,
+.shift-insights p {
+  margin: 0;
+  padding: 13px;
+}
+
+.send-recap {
+  justify-content: center;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.checklist-layout {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+}
+
+.checklist-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.checklist-grid button {
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  gap: 8px;
+  min-height: 136px;
+  padding: 13px;
+  text-align: left;
+}
+
+.checklist-grid button.active {
+  border-color: #bd5d26;
+  box-shadow: inset 0 0 0 2px rgba(189, 93, 38, 0.14);
+}
+
+.checklist-grid i {
+  background: #ead9bd;
+  border-radius: 999px;
+  display: block;
+  height: 9px;
+  overflow: hidden;
+}
+
+.checklist-grid b {
+  background: linear-gradient(90deg, #bd5d26, #ffbc67);
+  display: block;
+  height: 100%;
+}
+
+.checklist-grid small,
+.task-list span {
+  color: #76695f;
+}
+
+.checklist-detail {
+  padding: 16px;
+}
+
+.checklist-detail h3 {
+  margin: 0 0 8px;
+}
+
+.task-list {
+  display: grid;
+  gap: 8px;
+}
+
+.task-list span {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.task-list svg {
+  color: #478b60;
+}
+
+.shift-table-wrap {
+  overflow: auto;
+}
+
+.shift-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 980px;
+  width: 100%;
+}
+
+.shift-table.daily {
+  min-width: 1320px;
+}
+
+.shift-table th {
+  background: #fff1d3;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.shift-table th,
+.shift-table td {
+  border-bottom: 1px solid #ead9bd;
+  padding: 11px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.shift-table th {
+  color: #72533c;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.shift-table tr.warning td,
+.shift-table tr.high td {
+  background: #fff7e5;
+}
+
+.shift-table tr.critical td {
+  background: #fff0ea;
+}
+
+.cash-grid,
+.staffing-grid {
+  flex-wrap: wrap;
+}
+
+.cash-grid div,
+.staffing-grid div {
+  display: grid;
+  flex: 1 1 150px;
+  gap: 5px;
+  padding: 12px;
+}
+
+.cash-grid span,
+.staffing-grid span {
+  color: #76695f;
+}
+
+.drawer-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.drawer-list span {
+  padding: 10px;
+}
+
+.shift-note-card {
+  margin: 0;
+  padding: 13px;
+}
+
+.shift-search {
+  align-items: center;
+  color: #76695f;
+  display: flex;
+  gap: 8px;
+}
+
+.shift-search input {
+  width: 260px;
+}
+
 @media (max-width: 980px) {
   .navbar {
     align-items: stretch;
@@ -3091,6 +3683,32 @@ textarea {
   .waste-layout {
     grid-template-columns: 1fr;
   }
+
+  .shift-hero,
+  .shift-sync-strip,
+  .shift-kpi-grid,
+  .shift-grid,
+  .checklist-layout,
+  .checklist-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .shift-span-7,
+  .shift-span-5,
+  .shift-wide {
+    grid-column: 1 / -1;
+  }
+
+  .shift-panel-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .shift-search,
+  .shift-search input,
+  .shift-panel-heading select {
+    width: 100%;
+  }
 }
 
 @media (max-width: 760px) {
@@ -3172,5 +3790,38 @@ textarea {
 
   .food-cost-day {
     min-width: 42px;
+  }
+
+  .shift-ops-shell {
+    padding: 12px;
+  }
+
+  .shift-hero > div,
+  .shift-controls,
+  .shift-panel {
+    padding: 14px;
+  }
+
+  .shift-hero h1 {
+    font-size: 2.25rem;
+  }
+
+  .shift-controls button,
+  .shift-chart-buttons button {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .shift-bar-chart,
+  .shift-heatmap {
+    overflow-x: auto;
+  }
+
+  .shift-bar-chart div {
+    min-width: 34px;
+  }
+
+  .timeline-item {
+    grid-template-columns: 1fr;
   }
 }
