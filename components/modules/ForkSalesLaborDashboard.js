@@ -1,525 +1,329 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ArrowDown,
-  ArrowUp,
-  BarChart3,
-  CalendarDays,
-  Download,
-  FileText,
-  Filter,
-  RefreshCw,
-  Search,
-  TrendingUp,
-  Users
-} from "lucide-react";
+import { ChevronRight, Download, ReceiptText } from "lucide-react";
 import { useMemo, useState } from "react";
-import { chartOptions, forkAlehouseRanges, forkAlehouseSalesLabor } from "@/data/forkAlehouseSalesLabor";
+import { forkAlehouseSalesLabor } from "@/data/forkAlehouseSalesLabor";
 
 const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+const exactMoney = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const number = new Intl.NumberFormat("en-US");
 
-const kpiConfig = [
-  ["Net Sales", "netSales", "money", "positive"],
-  ["Gross Sales", "grossSales", "money", "positive"],
-  ["Labor Cost", "laborCost", "money", "negative"],
-  ["Labor %", "laborPct", "percent", "negative"],
-  ["Guest Count", "guestCount", "number", "positive"],
-  ["Average Check", "avgCheck", "money", "positive"],
-  ["Online Ordering Sales", "onlineSales", "money", "positive"],
-  ["Dine-In Sales", "dineInSales", "money", "positive"],
-  ["Walk-In / Counter Sales", "walkInSales", "money", "positive"],
-  ["Delivery Sales", "deliverySales", "money", "positive"],
-  ["Takeout Sales", "takeoutSales", "money", "positive"],
-  ["Bar Sales", "barSales", "money", "positive"],
-  ["Discounts / Comps", "discountComp", "money", "negative"],
-  ["Voids / Refunds", "voidRefund", "money", "negative"],
-  ["Sales per Labor Hour", "salesPerLaborHour", "money", "positive"],
-  ["Covers per Labor Hour", "coversPerLaborHour", "decimal", "positive"]
+const compareOptions = ["Yesterday", "Same Day Last Week", "Budget", "Prior Year"];
+const dayparts = ["Breakfast", "Lunch", "Happy Hour", "Dinner", "Late Night", "Full Day"];
+const metricTabs = [
+  ["Net Sales", "netSales", "money"],
+  ["Labor Cost", "laborCost", "money"],
+  ["Labor %", "laborPct", "percent"],
+  ["Guest Count", "guestCount", "number"],
+  ["Average Check", "avgCheck", "money"],
+  ["Orders", "orders", "number"],
+  ["Discounts", "discounts", "money"],
+  ["Refunds", "refunds", "money"],
+  ["Voids", "voids", "money"],
+  ["Tips", "tips", "money"]
 ];
 
-const columns = [
-  ["date", "Date"],
-  ["day", "Day"],
-  ["grossSales", "Gross Sales"],
-  ["netSales", "Net Sales"],
-  ["guestCount", "Guests"],
-  ["avgCheck", "Avg Check"],
-  ["dineInSales", "Dine-In"],
-  ["walkInSales", "Counter"],
-  ["onlineSales", "Online"],
-  ["takeoutSales", "Takeout"],
-  ["deliverySales", "Delivery"],
-  ["barSales", "Bar"],
-  ["laborHours", "Labor Hrs"],
-  ["laborCost", "Labor Cost"],
-  ["laborPct", "Labor %"],
-  ["salesPerLaborHour", "Sales/LH"],
-  ["discounts", "Discounts"],
-  ["comps", "Comps"],
-  ["voids", "Voids"],
-  ["refunds", "Refunds"],
-  ["note", "Notes / Flag"]
+const hourlyShape = [
+  ["6 AM", 0.01, 0.03], ["7 AM", 0.018, 0.04], ["8 AM", 0.026, 0.045], ["9 AM", 0.032, 0.05],
+  ["10 AM", 0.044, 0.055], ["11 AM", 0.085, 0.075], ["12 PM", 0.13, 0.09], ["1 PM", 0.112, 0.08],
+  ["2 PM", 0.058, 0.065], ["3 PM", 0.036, 0.055], ["4 PM", 0.044, 0.06], ["5 PM", 0.08, 0.075],
+  ["6 PM", 0.13, 0.09], ["7 PM", 0.125, 0.09], ["8 PM", 0.075, 0.07], ["9 PM", 0.04, 0.055],
+  ["10 PM", 0.025, 0.04], ["11 PM", 0.014, 0.025]
+];
+
+const employees = [
+  ["Maddie R.", "Server", "10:46 AM", 5.7, 118],
+  ["Chris M.", "Bartender", "3:52 PM", 4.1, 96],
+  ["Tara S.", "Line Cook", "9:20 AM", 7.2, 151],
+  ["Ben K.", "Expo", "11:15 AM", 5.1, 84],
+  ["Luis V.", "Manager", "8:05 AM", 8.3, 205],
+  ["Jenna P.", "Host", "4:10 PM", 3.9, 58],
+  ["Owen D.", "Dish", "5:00 PM", 3.2, 52]
 ];
 
 function enrich(row) {
+  const orders = Math.round(row.guestCount * 0.82);
+  const patioSales = row.revenueCenters?.Patio || 0;
+  const tips = Math.round((row.dineInSales + row.barSales + patioSales) * 0.18);
   return {
     ...row,
     laborPct: row.laborCost / row.netSales,
     avgCheck: row.netSales / row.guestCount,
-    salesPerLaborHour: row.netSales / row.laborHours,
-    coversPerLaborHour: row.guestCount / row.laborHours,
-    discountComp: row.discounts + row.comps,
-    voidRefund: row.voids + row.refunds
+    avgOrder: row.netSales / orders,
+    orders,
+    tips,
+    openChecks: Math.max(4, Math.round(row.guestCount * 0.06)),
+    teamIn: Math.max(9, Math.round(row.laborHours / 15))
   };
 }
 
-function formatValue(value, type) {
-  if (type === "money") return money.format(value);
-  if (type === "percent") return `${(value * 100).toFixed(1)}%`;
-  if (type === "decimal") return value.toFixed(1);
-  return number.format(Math.round(value));
-}
-
-function rowsForRange(range) {
+function rowsForMode(mode) {
   const rows = forkAlehouseSalesLabor.map(enrich);
-  if (range === "Today") return rows.filter((row) => row.date === "2026-05-20");
-  if (range === "Yesterday") return rows.filter((row) => row.date === "2026-05-19");
-  if (range === "This Week") return rows.filter((row) => row.date >= "2026-05-18");
-  if (range === "Last Week") return rows.filter((row) => row.date >= "2026-05-11" && row.date <= "2026-05-17");
+  if (mode === "Today") return rows.filter((row) => row.date === "2026-05-20");
+  if (mode === "Yesterday") return rows.filter((row) => row.date === "2026-05-19");
+  if (mode === "This Week") return rows.filter((row) => row.date >= "2026-05-18");
+  if (mode === "Last Week") return rows.filter((row) => row.date >= "2026-05-11" && row.date <= "2026-05-17");
   return rows;
 }
 
 function summarize(rows) {
-  const totals = rows.reduce(
-    (sum, row) => {
-      Object.keys(sum).forEach((key) => {
-        sum[key] += row[key] || 0;
-      });
-      return sum;
-    },
-    {
-      grossSales: 0,
-      netSales: 0,
-      laborCost: 0,
-      guestCount: 0,
-      onlineSales: 0,
-      dineInSales: 0,
-      walkInSales: 0,
-      deliverySales: 0,
-      takeoutSales: 0,
-      barSales: 0,
-      discounts: 0,
-      comps: 0,
-      voids: 0,
-      refunds: 0,
-      laborHours: 0
-    }
-  );
-
-  return {
-    ...totals,
-    laborPct: totals.laborCost / totals.netSales,
-    avgCheck: totals.netSales / totals.guestCount,
-    discountComp: totals.discounts + totals.comps,
-    voidRefund: totals.voids + totals.refunds,
-    salesPerLaborHour: totals.netSales / totals.laborHours,
-    coversPerLaborHour: totals.guestCount / totals.laborHours
-  };
-}
-
-function priorSummary(rows) {
-  const priorRows = forkAlehouseSalesLabor
-    .map((row, index) => ({ ...enrich(row), index }))
-    .filter((row) => row.index < Math.max(0, forkAlehouseSalesLabor.length - rows.length))
-    .slice(-rows.length);
-  return summarize(priorRows.length ? priorRows : forkAlehouseSalesLabor.slice(0, rows.length).map(enrich));
-}
-
-function trendClass(kpi, change) {
-  const directionGood = kpi[3] === "positive" ? change >= 0 : change <= 0;
-  return directionGood ? "good" : "bad";
-}
-
-function dayStatus(row) {
-  if (row.flags.includes("Strong sales")) return "strong";
-  if (row.laborPct > 0.34 || row.flags.includes("High comps") || row.flags.includes("High refunds")) return "warning";
-  if (row.netSales < 5200) return "low";
-  return "steady";
-}
-
-function LineChart({ rows, metric, color = "#67d0b3" }) {
-  const values = rows.map((row) => row[metric]);
-  const max = Math.max(...values);
-  const min = Math.min(...values);
-  const points = values
-    .map((value, index) => {
-      const x = rows.length === 1 ? 50 : (index / (rows.length - 1)) * 100;
-      const y = 88 - ((value - min) / Math.max(1, max - min)) * 72;
-      return `${x},${y}`;
-    })
-    .join(" ");
-
-  return (
-    <div className="fork-chart-svg">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <polyline points={points} fill="none" stroke={color} strokeWidth="3" vectorEffect="non-scaling-stroke" />
-      </svg>
-      <div className="chart-axis">
-        {rows.map((row) => (
-          <span key={row.date}>{row.day.slice(0, 3)}</span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function BarChart({ rows, metric }) {
-  const max = Math.max(...rows.map((row) => row[metric]));
-  return (
-    <div className="fork-bar-chart">
-      {rows.map((row) => (
-        <div key={row.date}>
-          <span style={{ height: `${Math.max(8, (row[metric] / max) * 100)}%` }} />
-          <small>{row.day.slice(0, 3)}</small>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ChannelChart({ rows }) {
-  const max = Math.max(...rows.map((row) => row.netSales));
-  return (
-    <div className="channel-chart">
-      {rows.map((row) => (
-        <div key={row.date} className="channel-row">
-          <small>{row.day.slice(0, 3)} {row.date.slice(5)}</small>
-          <div style={{ width: `${(row.netSales / max) * 100}%` }}>
-            <span className="dine" style={{ flex: row.dineInSales }} />
-            <span className="bar" style={{ flex: row.barSales }} />
-            <span className="online" style={{ flex: row.onlineSales }} />
-            <span className="delivery" style={{ flex: row.deliverySales + row.takeoutSales + row.walkInSales }} />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function DaypartChart({ rows }) {
-  const totals = rows.reduce((sum, row) => {
-    Object.entries(row.dayparts).forEach(([key, value]) => {
-      sum[key] = (sum[key] || 0) + value;
+  const total = rows.reduce((sum, row) => {
+    ["grossSales", "netSales", "laborCost", "guestCount", "orders", "discounts", "comps", "voids", "refunds", "tips", "dineInSales", "walkInSales", "onlineSales", "takeoutSales", "deliverySales", "barSales", "laborHours", "scheduledHours", "fohLabor", "bohLabor", "barLabor", "managementLabor", "overtime", "openChecks", "teamIn"].forEach((key) => {
+      sum[key] = (sum[key] || 0) + (row[key] || 0);
     });
     return sum;
   }, {});
-  const max = Math.max(...Object.values(totals));
+  return {
+    ...total,
+    laborPct: total.laborCost / total.netSales,
+    avgCheck: total.netSales / total.guestCount,
+    avgOrder: total.netSales / total.orders,
+    salesPerLaborHour: total.netSales / total.laborHours,
+    guestsPerLaborHour: total.guestCount / total.laborHours
+  };
+}
+
+function format(value, type) {
+  if (type === "percent") return `${(value * 100).toFixed(1)}%`;
+  if (type === "money") return money.format(value);
+  return number.format(Math.round(value));
+}
+
+function makeHourly(activeDay) {
+  const salesTotal = hourlyShape.reduce((s, h) => s + h[1], 0);
+  const laborTotal = hourlyShape.reduce((s, h) => s + h[2], 0);
+  return hourlyShape.map(([hour, salesWeight, laborWeight], index) => {
+    const netSales = Math.round(activeDay.netSales * salesWeight / salesTotal);
+    const laborCost = Math.round(activeDay.laborCost * laborWeight / laborTotal);
+    const orders = Math.max(1, Math.round(activeDay.orders * salesWeight / salesTotal));
+    const guests = Math.max(1, Math.round(activeDay.guestCount * salesWeight / salesTotal));
+    return { hour, netSales, laborCost, laborPct: laborCost / Math.max(netSales, 1), orders, guests, avgCheck: netSales / guests, index };
+  });
+}
+
+function barWidth(value, max) {
+  return `${Math.max(4, (value / max) * 100)}%`;
+}
+
+function ReportTile({ label, value, detail, active, onClick }) {
   return (
-    <div className="daypart-bars">
-      {Object.entries(totals).map(([key, value]) => (
-        <div key={key}>
-          <strong>{key}</strong>
-          <span><b style={{ width: `${(value / max) * 100}%` }} /></span>
-          <small>{money.format(value)}</small>
+    <button className={`pos-tile ${active ? "active" : ""}`} type="button" onClick={onClick}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <small>{detail}</small>
+      <ChevronRight size={16} />
+    </button>
+  );
+}
+
+function HorizontalBars({ rows, total }) {
+  return (
+    <div className="pos-bars-list">
+      {rows.map((row) => (
+        <div key={row.label}>
+          <header><strong>{row.label}</strong><span>{money.format(row.sales)}</span></header>
+          <i><b style={{ width: barWidth(row.sales, total) }} /></i>
+          <footer><span>{row.orders} orders</span><span>{row.guests} guests</span><span>{money.format(row.avg)} avg</span><span>{((row.sales / total) * 100).toFixed(1)}%</span></footer>
         </div>
       ))}
     </div>
   );
-}
-
-function Heatmap({ rows }) {
-  const hours = ["11a", "12p", "1p", "2p", "4p", "5p", "6p", "7p", "8p", "9p"];
-  return (
-    <div className="hourly-heatmap">
-      {rows.map((row, rowIndex) => (
-        <div key={row.date} className="heat-row">
-          <small>{row.day.slice(0, 3)}</small>
-          {hours.map((hour, index) => {
-            const dinnerLift = index >= 5 && index <= 7 ? 1.25 : 0.72;
-            const weekendLift = ["Friday", "Saturday"].includes(row.day) ? 1.22 : 1;
-            const intensity = Math.min(1, ((row.netSales / 13000) * dinnerLift * weekendLift * (0.75 + index / 18 + rowIndex / 60)));
-            return <span key={hour} title={`${row.day} ${hour}`} style={{ opacity: 0.25 + intensity * 0.75 }} />;
-          })}
-        </div>
-      ))}
-      <div className="heat-hours">
-        <small />
-        {hours.map((hour) => <small key={hour}>{hour}</small>)}
-      </div>
-    </div>
-  );
-}
-
-function ChartPanel({ rows, chart }) {
-  if (chart === "channels") return <ChannelChart rows={rows} />;
-  if (chart === "labor") return <LineChart rows={rows} metric="laborPct" color="#f2b35b" />;
-  if (chart === "guests") return <BarChart rows={rows} metric="guestCount" />;
-  if (chart === "avgCheck") return <LineChart rows={rows} metric="avgCheck" color="#8bb9ff" />;
-  if (chart === "dayparts") return <DaypartChart rows={rows} />;
-  if (chart === "heatmap") return <Heatmap rows={rows} />;
-  return <LineChart rows={rows} metric="netSales" />;
 }
 
 export default function ForkSalesLaborDashboard() {
-  const [range, setRange] = useState("This Month");
-  const [chart, setChart] = useState("sales");
-  const [sort, setSort] = useState({ key: "date", direction: "asc" });
-  const [query, setQuery] = useState("");
-  const [selectedDay, setSelectedDay] = useState(null);
+  const [dateMode, setDateMode] = useState("Today");
+  const [compareTo, setCompareTo] = useState("Same Day Last Week");
+  const [daypart, setDaypart] = useState("Full Day");
+  const [metricKey, setMetricKey] = useState("netSales");
+  const [viewMode, setViewMode] = useState("Report");
+  const [showLaborOverlay, setShowLaborOverlay] = useState(true);
+  const [selectedTile, setSelectedTile] = useState("Net Sales");
 
-  const rows = useMemo(() => rowsForRange(range), [range]);
+  const rows = useMemo(() => rowsForMode(dateMode), [dateMode]);
+  const rangeRows = useMemo(() => rowsForMode("This Month"), []);
+  const activeDay = rows[rows.length - 1] || forkAlehouseSalesLabor.map(enrich).at(-1);
   const summary = useMemo(() => summarize(rows), [rows]);
-  const prior = useMemo(() => priorSummary(rows), [rows]);
+  const compareBase = enrich(forkAlehouseSalesLabor.find((row) => row.date === "2026-05-13") || forkAlehouseSalesLabor[0]);
+  const hourly = useMemo(() => makeHourly(activeDay), [activeDay]);
+  const metric = metricTabs.find((item) => item[1] === metricKey) || metricTabs[0];
+  const metricValue = summary[metric[1]];
+  const comparisonValue = compareBase[metric[1]] || 1;
+  const change = ((metricValue - comparisonValue) / comparisonValue) * 100;
+  const dollarChange = metric[2] === "money" ? metricValue - comparisonValue : summary.netSales - compareBase.netSales;
+  const maxHourlySales = Math.max(...hourly.map((row) => row.netSales));
+  const maxHourlyLabor = Math.max(...hourly.map((row) => row.laborCost));
+  const maxCombo = Math.max(maxHourlySales, maxHourlyLabor * 3.6);
 
-  const visibleRows = useMemo(() => {
-    return [...rows]
-      .filter((row) => {
-        const text = `${row.date} ${row.day} ${row.note} ${row.flags.join(" ")}`.toLowerCase();
-        return text.includes(query.toLowerCase());
-      })
-      .sort((a, b) => {
-        const aValue = a[sort.key];
-        const bValue = b[sort.key];
-        const result = typeof aValue === "string" ? String(aValue).localeCompare(String(bValue)) : aValue - bValue;
-        return sort.direction === "asc" ? result : -result;
-      });
-  }, [query, rows, sort]);
+  const revenueCenters = [
+    ["Dining Room", activeDay.dineInSales, Math.round(activeDay.orders * 0.32), Math.round(activeDay.guestCount * 0.34)],
+    ["Bar", activeDay.barSales, Math.round(activeDay.orders * 0.12), Math.round(activeDay.guestCount * 0.1)],
+    ["Patio", activeDay.revenueCenters?.Patio || 595, Math.round(activeDay.orders * 0.08), Math.round(activeDay.guestCount * 0.09)],
+    ["Online Ordering", activeDay.onlineSales, Math.round(activeDay.orders * 0.18), Math.round(activeDay.guestCount * 0.15)],
+    ["Takeout", activeDay.takeoutSales, Math.round(activeDay.orders * 0.1), Math.round(activeDay.guestCount * 0.08)],
+    ["Delivery", activeDay.deliverySales, Math.round(activeDay.orders * 0.09), Math.round(activeDay.guestCount * 0.07)],
+    ["Catering", activeDay.revenueCenters?.Catering || 940, Math.round(activeDay.orders * 0.04), Math.round(activeDay.guestCount * 0.04)]
+  ].map(([label, sales, orders, guests]) => ({ label, sales, orders, guests, avg: sales / Math.max(guests, 1) }));
 
-  const activeDay = selectedDay || visibleRows[visibleRows.length - 1] || rows[0];
+  const orderChannels = [
+    ["Walk-in", activeDay.walkInSales], ["Dine-in", activeDay.dineInSales], ["Online", activeDay.onlineSales],
+    ["Phone", 310], ["DoorDash", Math.round(activeDay.deliverySales * 0.58)], ["Uber Eats", Math.round(activeDay.deliverySales * 0.42)], ["Catering", activeDay.revenueCenters?.Catering || 940]
+  ].map(([label, sales], index) => ({ label, sales, orders: Math.round(activeDay.orders * (0.2 - index * 0.015)), guests: Math.round(activeDay.guestCount * (0.18 - index * 0.012)), avg: sales / Math.max(1, Math.round(activeDay.guestCount * (0.18 - index * 0.012))) }));
 
-  const changeFor = (key) => {
-    const base = prior[key] || 1;
-    return ((summary[key] - base) / base) * 100;
-  };
+  const productMix = Object.entries(activeDay.categories || {}).concat([["Wine", 330], ["Kids", 210], ["Non-Alcoholic", 285]]).map(([label, sales]) => ({
+    label,
+    sales,
+    qty: Math.max(6, Math.round(sales / 14)),
+    pct: sales / activeDay.netSales
+  })).sort((a, b) => b.sales - a.sales);
 
-  const setSortKey = (key) => {
-    setSort((current) => ({
-      key,
-      direction: current.key === key && current.direction === "asc" ? "desc" : "asc"
-    }));
-  };
+  const laborRoles = [
+    ["FOH", activeDay.fohLabor, 52], ["BOH", activeDay.bohLabor, 61], ["Bar", activeDay.barLabor, 18],
+    ["Management", activeDay.managementLabor, 10], ["Host/Expo", 365, 24], ["Delivery/To-go", 205, 14]
+  ].map(([label, cost, hours]) => ({ label, cost, hours, pct: cost / activeDay.netSales }));
+
+  const tiles = [
+    ["Net Sales", money.format(summary.netSales), `${change >= 0 ? "+" : ""}${change.toFixed(1)}% vs ${compareTo}`],
+    ["Labor Cost", money.format(summary.laborCost), `${format(summary.laborPct, "percent")} of sales`],
+    ["Team Members Clocked In", number.format(Math.round(summary.teamIn / rows.length || activeDay.teamIn)), "Current estimate"],
+    ["Open Checks", number.format(activeDay.openChecks), "Live POS placeholder"],
+    ["Guest Count", number.format(summary.guestCount), `${format(summary.avgCheck, "money")} avg guest`],
+    ["Average Guest", format(summary.avgCheck, "money"), "Per cover"],
+    ["Average Order", format(summary.avgOrder, "money"), "Per order"],
+    ["Discounts", money.format(summary.discounts), "Promo and manager discounts"],
+    ["Refunds", money.format(summary.refunds), "Refunded checks"],
+    ["Voids", money.format(summary.voids), "Voided items/checks"],
+    ["Tips", money.format(summary.tips), "Declared + charged"],
+    ["Product Mix", `${productMix.length} cats`, "Top category: " + productMix[0].label],
+    ["Order Channels", `${orderChannels.length} channels`, "Dine-in + off-premise"]
+  ];
 
   return (
-    <main className="fork-module-shell">
-      <header className="fork-module-header">
+    <main className="pos-report-shell">
+      <header className="pos-report-header">
         <div>
-          <Link href="/modules" className="fork-back-link">Modules / Sales & Labor</Link>
-          <h1>Sales & Labor — Fork Alehouse Operations</h1>
-          <p>
-            Aggregated sales, labor, guest, and ordering-channel visibility for Fork Alehouse. Built to show what owners
-            usually chase across POS, scheduling, online ordering, spreadsheets, and manager notes.
-          </p>
+          <Link href="/modules" className="pos-back">Modules / Sales & Labor</Link>
+          <h1>Sales & Labor Report</h1>
+          <p>Fork Alehouse · POS-style operating report</p>
         </div>
-        <div className="fork-sync-card">
-          <RefreshCw size={18} />
-          <span>Last synced from POS</span>
-          <strong>Today 4:12 AM</strong>
+        <div className="pos-controls">
+          <label>Date<select value={dateMode} onChange={(event) => setDateMode(event.target.value)}><option>Today</option><option>Yesterday</option><option>This Week</option><option>Last Week</option><option>This Month</option></select></label>
+          <label>Compare to<select value={compareTo} onChange={(event) => setCompareTo(event.target.value)}>{compareOptions.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>Shift / daypart<select value={daypart} onChange={(event) => setDaypart(event.target.value)}>{dayparts.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>Location<select><option>Fork Alehouse</option></select></label>
+          <button type="button"><Download size={15} /> Export</button>
         </div>
       </header>
 
-      <section className="fork-control-bar">
-        <label>
-          <CalendarDays size={16} /> Date range
-          <select value={range} onChange={(event) => setRange(event.target.value)}>
-            {forkAlehouseRanges.map((item) => <option key={item}>{item}</option>)}
-          </select>
-        </label>
-        <div className="quick-ranges">
-          {forkAlehouseRanges.map((item) => (
-            <button className={range === item ? "active" : ""} key={item} type="button" onClick={() => setRange(item)}>
-              {item}
-            </button>
-          ))}
-        </div>
-        <div className="export-actions">
-          <button type="button"><Download size={16} /> CSV</button>
-          <button type="button"><FileText size={16} /> PDF</button>
-        </div>
-      </section>
+      <nav className="pos-mode-tabs">
+        {["Report", "Daily Sheet", "Range View"].map((item) => <button className={viewMode === item ? "active" : ""} type="button" key={item} onClick={() => setViewMode(item)}>{item}</button>)}
+      </nav>
 
-      <section className="fork-kpi-grid">
-        {kpiConfig.map((kpi, index) => {
-          const [label, key, type] = kpi;
-          const change = changeFor(key);
-          const tone = trendClass(kpi, change);
-          return (
-            <article className={`fork-kpi-card ${tone}`} key={label}>
-              <span>{label}</span>
-              <strong>{formatValue(summary[key], type)}</strong>
-              <small>
-                {change >= 0 ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
-                {Math.abs(change).toFixed(1)}% vs prior period
-              </small>
-              <i style={{ width: `${44 + ((index * 7) % 42)}%` }} />
+      {viewMode === "Report" && (
+        <>
+          <section className="pos-primary-panel">
+            <div className="pos-primary-top">
+              <div>
+                <span className="pos-eyebrow">{metric[0]}</span>
+                <strong>{format(metricValue, metric[2])}</strong>
+                <p><b className={change >= 0 ? "pos-good" : "pos-bad"}>{change >= 0 ? "+" : ""}{change.toFixed(1)}%</b> · {dollarChange >= 0 ? "+" : ""}{money.format(dollarChange)} vs {compareTo}</p>
+              </div>
+              <label className="pos-toggle"><input type="checkbox" checked={showLaborOverlay} onChange={(event) => setShowLaborOverlay(event.target.checked)} /> Overlay labor cost</label>
+            </div>
+            <div className="pos-intraday-bars">
+              {hourly.map((row) => <div key={row.hour}><span className="sales" style={{ height: barWidth(row.netSales, maxCombo) }} title={`${row.hour}: ${money.format(row.netSales)}`} />{showLaborOverlay && <span className="labor" style={{ height: barWidth(row.laborCost, maxCombo) }} title={`${row.hour}: ${money.format(row.laborCost)} labor`} />}<small>{row.hour.replace(" ", "")}</small></div>)}
+            </div>
+            <div className="metric-tabs">{metricTabs.map(([label, key]) => <button className={metricKey === key ? "active" : ""} type="button" key={key} onClick={() => setMetricKey(key)}>{label}</button>)}</div>
+          </section>
+
+          <section className="pos-report-grid">
+            <article className="pos-card pos-span-7">
+              <div className="pos-card-head"><h2>Hourly sales and labor</h2><span>{activeDay.day}, {activeDay.date}</span></div>
+              <div className="pos-hour-chart">
+                {hourly.map((row) => <div key={row.hour}><span className="sales" style={{ height: barWidth(row.netSales, maxCombo) }} title={`${row.hour} net sales ${money.format(row.netSales)}`} /><span className="labor" style={{ height: barWidth(row.laborCost * 3.6, maxCombo) }} title={`${row.hour} labor ${money.format(row.laborCost)}`} /><small>{row.hour}</small></div>)}
+              </div>
+              <div className="pos-legend"><span className="sales-dot">Net sales</span><span className="labor-dot">Labor cost</span><span>Labor % shown in table</span></div>
+              <div className="pos-table-wrap"><table className="pos-table"><thead><tr><th>Hour</th><th>Net Sales</th><th>Labor Cost</th><th>Labor %</th><th>Orders</th><th>Guests</th><th>Average Check</th></tr></thead><tbody>{hourly.map((row) => <tr key={row.hour}><td>{row.hour}</td><td>{money.format(row.netSales)}</td><td>{money.format(row.laborCost)}</td><td>{format(row.laborPct, "percent")}</td><td>{row.orders}</td><td>{row.guests}</td><td>{exactMoney.format(row.avgCheck)}</td></tr>)}</tbody></table></div>
             </article>
-          );
-        })}
-      </section>
 
-      <section className="fork-dashboard-grid">
-        <article className="fork-panel span-8">
-          <div className="fork-panel-heading">
-            <div>
-              <h2><BarChart3 size={20} /> Performance charts</h2>
-              <span>{range} · {rows.length} operating days</span>
-            </div>
-            <select value={chart} onChange={(event) => setChart(event.target.value)} aria-label="Chart metric">
-              {chartOptions.map((option) => <option key={option.key} value={option.key}>{option.label}</option>)}
-            </select>
-          </div>
-          <div className="chart-switcher">
-            {chartOptions.map((option) => (
-              <button className={chart === option.key ? "active" : ""} key={option.key} type="button" onClick={() => setChart(option.key)}>
-                {option.label}
-              </button>
-            ))}
-          </div>
-          <ChartPanel rows={rows} chart={chart} />
-          <div className="chart-legend fork-chart-legend">
-            <span className="actual-dot">Dine-in / sales</span>
-            <span className="budget-dot">Bar / labor</span>
-            <span className="prior-dot">Online / off-premise</span>
-          </div>
-        </article>
+            <article className="pos-card pos-span-5">
+              <div className="pos-card-head"><h2>Report tiles</h2><span>Tap to drill down</span></div>
+              <div className="pos-tile-grid">{tiles.map(([label, value, detail]) => <ReportTile key={label} label={label} value={value} detail={detail} active={selectedTile === label} onClick={() => setSelectedTile(label)} />)}</div>
+              <div className="pos-drill-card"><strong>{selectedTile}</strong><p>Detail view is ready for POS drilldowns, employee/check-level detail, or connected Toast/Square/Clover report exports.</p></div>
+            </article>
 
-        <article className="fork-panel span-4">
-          <div className="fork-panel-heading">
-            <div>
-              <h2><Users size={20} /> Labor command panel</h2>
-              <span>Scheduled vs actual coverage</span>
-            </div>
-          </div>
-          <div className="labor-metrics">
-            <div><span>Scheduled hours</span><strong>{number.format(rows.reduce((s, r) => s + r.scheduledHours, 0))}</strong></div>
-            <div><span>Actual hours</span><strong>{number.format(summary.laborHours)}</strong></div>
-            <div><span>Labor cost</span><strong>{money.format(summary.laborCost)}</strong></div>
-            <div><span>Labor %</span><strong>{formatValue(summary.laborPct, "percent")}</strong></div>
-            <div><span>FOH labor</span><strong>{money.format(rows.reduce((s, r) => s + r.fohLabor, 0))}</strong></div>
-            <div><span>BOH labor</span><strong>{money.format(rows.reduce((s, r) => s + r.bohLabor, 0))}</strong></div>
-            <div><span>Bar labor</span><strong>{money.format(rows.reduce((s, r) => s + r.barLabor, 0))}</strong></div>
-            <div><span>OT estimate</span><strong>{rows.reduce((s, r) => s + r.overtime, 0).toFixed(1)} hrs</strong></div>
-          </div>
-          <p className="staffing-note">
-            Dinner sales were 18% above forecast while BOH labor stayed flat. Keep the current dinner line structure,
-            but watch Tuesday and Wednesday FOH openers when sales forecast below $6.5k.
-          </p>
-        </article>
+            <article className="pos-card pos-span-6">
+              <div className="pos-card-head"><h2>Sales breakdown</h2><span>Revenue centers</span></div>
+              <HorizontalBars rows={revenueCenters} total={activeDay.netSales} />
+            </article>
 
-        <article className="fork-panel span-12">
-          <div className="fork-panel-heading">
-            <div>
-              <h2><Filter size={20} /> Date-range daily table</h2>
-              <span>Click any day for detail drilldown</span>
-            </div>
-            <label className="table-search">
-              <Search size={15} />
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Filter notes, flags, days" />
-            </label>
-          </div>
-          <div className="fork-table-wrap">
-            <table className="fork-daily-table">
-              <thead>
-                <tr>
-                  {columns.map(([key, label]) => (
-                    <th key={key}>
-                      <button type="button" onClick={() => setSortKey(key)}>{label}</button>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {visibleRows.map((row) => (
-                  <tr className={dayStatus(row)} key={row.date} onClick={() => setSelectedDay(row)}>
-                    <td>{row.date.slice(5)}</td>
-                    <td>{row.day}</td>
-                    <td>{money.format(row.grossSales)}</td>
-                    <td>{money.format(row.netSales)}</td>
-                    <td>{number.format(row.guestCount)}</td>
-                    <td>{money.format(row.avgCheck)}</td>
-                    <td>{money.format(row.dineInSales)}</td>
-                    <td>{money.format(row.walkInSales)}</td>
-                    <td>{money.format(row.onlineSales)}</td>
-                    <td>{money.format(row.takeoutSales)}</td>
-                    <td>{money.format(row.deliverySales)}</td>
-                    <td>{money.format(row.barSales)}</td>
-                    <td>{row.laborHours}</td>
-                    <td>{money.format(row.laborCost)}</td>
-                    <td><span className={row.laborPct > 0.34 ? "warn-pill" : "good-pill"}>{formatValue(row.laborPct, "percent")}</span></td>
-                    <td>{money.format(row.salesPerLaborHour)}</td>
-                    <td>{money.format(row.discounts)}</td>
-                    <td>{money.format(row.comps)}</td>
-                    <td>{money.format(row.voids)}</td>
-                    <td>{money.format(row.refunds)}</td>
-                    <td><span className="note-cell">{row.flags[0]}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </article>
+            <article className="pos-card pos-span-6">
+              <div className="pos-card-head"><h2>Order channels</h2><span>Walk-in, dine-in, online, delivery</span></div>
+              <HorizontalBars rows={orderChannels} total={activeDay.netSales} />
+            </article>
 
-        <article className="fork-panel span-5">
-          <div className="fork-panel-heading">
-            <div>
-              <h2><TrendingUp size={20} /> Practical insights</h2>
-              <span>Operational signals from the selected range</span>
-            </div>
-          </div>
-          <div className="fork-insights">
-            <p>Saturday dinner sales outperformed the prior 4-week average by 14%, driven by bar and patio revenue.</p>
-            <p>Labor % exceeded target on Tuesday and Wednesday despite below-average guest counts.</p>
-            <p>Online ordering increased 22% during the selected range, but average check was lower than dine-in.</p>
-            <p>Friday had strong sales but also elevated comps. Review manager notes or server-level detail.</p>
-            <p>Lunch daypart appears underutilized compared with dinner staffing levels.</p>
-          </div>
-        </article>
-
-        <article className="fork-panel span-7">
-          <div className="fork-panel-heading">
-            <div>
-              <h2>Day detail drilldown</h2>
-              <span>{activeDay.day}, {activeDay.date}</span>
-            </div>
-          </div>
-          <div className="day-detail-grid">
-            <div>
-              <h3>Total sales breakdown</h3>
-              <p>Net sales {money.format(activeDay.netSales)} from {number.format(activeDay.guestCount)} guests at {money.format(activeDay.avgCheck)} average check.</p>
-              <div className="mini-breakdown">
-                {Object.entries(activeDay.revenueCenters).map(([key, value]) => (
-                  <span key={key}><b>{key}</b>{money.format(value)}</span>
-                ))}
+            <article className="pos-card pos-span-7">
+              <div className="pos-card-head"><h2>Labor detail</h2><span>{format(activeDay.laborCost / activeDay.netSales, "percent")} labor</span></div>
+              <div className="pos-labor-summary">
+                <div><span>Total labor cost</span><strong>{money.format(activeDay.laborCost)}</strong></div>
+                <div><span>Scheduled labor</span><strong>{activeDay.scheduledHours} hrs</strong></div>
+                <div><span>Actual labor</span><strong>{activeDay.laborHours} hrs</strong></div>
+                <div><span>Variance</span><strong>{activeDay.laborHours - activeDay.scheduledHours} hrs</strong></div>
+                <div><span>Overtime</span><strong>{activeDay.overtime} hrs</strong></div>
+                <div><span>Sales / labor hr</span><strong>{money.format(activeDay.netSales / activeDay.laborHours)}</strong></div>
+                <div><span>Guests / labor hr</span><strong>{(activeDay.guestCount / activeDay.laborHours).toFixed(1)}</strong></div>
               </div>
-            </div>
-            <div>
-              <h3>Labor by department</h3>
-              <div className="mini-breakdown">
-                <span><b>FOH</b>{money.format(activeDay.fohLabor)}</span>
-                <span><b>BOH</b>{money.format(activeDay.bohLabor)}</span>
-                <span><b>Bar</b>{money.format(activeDay.barLabor)}</span>
-                <span><b>Management</b>{money.format(activeDay.managementLabor)}</span>
+              <div className="pos-bars-list compact">{laborRoles.map((role) => <div key={role.label}><header><strong>{role.label}</strong><span>{money.format(role.cost)}</span></header><i><b style={{ width: barWidth(role.cost, activeDay.laborCost) }} /></i><footer><span>{role.hours} hrs</span><span>{format(role.pct, "percent")} sales</span></footer></div>)}</div>
+            </article>
+
+            <article className="pos-card pos-span-5">
+              <div className="pos-card-head"><h2>Clocked in now</h2><span>{employees.length} team members</span></div>
+              <div className="employee-list">{employees.map(([name, role, clock, hours, cost]) => <div key={name}><span><b>{name}</b><small>{role}</small></span><span>{clock}</span><span>{hours} hrs</span><strong>{money.format(cost)}</strong></div>)}</div>
+            </article>
+
+            <article className="pos-card pos-span-12">
+              <div className="pos-card-head"><h2>Product mix / item sales</h2><span>Top categories and items</span></div>
+              <div className="product-mix-layout">
+                <div className="pos-bars-list compact">{productMix.map((item) => <div key={item.label}><header><strong>{item.label}</strong><span>{money.format(item.sales)}</span></header><i><b style={{ width: barWidth(item.sales, productMix[0].sales) }} /></i><footer><span>{item.qty} qty</span><span>{(item.pct * 100).toFixed(1)}% sales</span></footer></div>)}</div>
+                <div className="pos-donut" style={{ "--a": "32%", "--b": "56%" }}><span>Product Mix</span><strong>{productMix[0].label}</strong><small>Top category</small></div>
               </div>
-            </div>
-            <div>
-              <h3>Top-selling categories</h3>
-              <div className="mini-breakdown">
-                {Object.entries(activeDay.categories).map(([key, value]) => (
-                  <span key={key}><b>{key}</b>{money.format(value)}</span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3>Manager notes & flags</h3>
-              <p>{activeDay.managerNote}</p>
-              <div className="flag-list">
-                {activeDay.flags.map((flag) => <span key={flag}>{flag}</span>)}
-              </div>
-            </div>
-          </div>
-        </article>
-      </section>
+            </article>
+          </section>
+        </>
+      )}
+
+      {viewMode === "Daily Sheet" && <DailySheet activeDay={activeDay} summary={summary} revenueCenters={revenueCenters} daypart={daypart} />}
+      {viewMode === "Range View" && <RangeView rows={rangeRows} />}
     </main>
+  );
+}
+
+function DailySheet({ activeDay, revenueCenters, daypart }) {
+  return (
+    <section className="daily-sheet">
+      <div className="sheet-head"><div><ReceiptText size={19} /><h2>Daily Sales Sheet</h2></div><button type="button"><Download size={15} /> Export / Print</button></div>
+      <div className="sheet-grid">
+        <SheetBlock title="Sales Summary" rows={[["Gross sales", money.format(activeDay.grossSales)], ["Net sales", money.format(activeDay.netSales)], ["Guest count", number.format(activeDay.guestCount)], ["Average check", exactMoney.format(activeDay.avgCheck)], ["Daypart", daypart]]} />
+        <SheetBlock title="Labor Summary" rows={[["Labor cost", money.format(activeDay.laborCost)], ["Labor %", format(activeDay.laborPct, "percent")], ["Scheduled", `${activeDay.scheduledHours} hrs`], ["Actual", `${activeDay.laborHours} hrs`], ["Overtime", `${activeDay.overtime} hrs`]]} />
+        <SheetBlock title="Cash Summary" rows={[["Tips", money.format(activeDay.tips)], ["Open checks", activeDay.openChecks], ["Estimated cash", money.format(activeDay.netSales * 0.21)], ["Card sales", money.format(activeDay.netSales * 0.79)]]} />
+        <SheetBlock title="Discounts / Comps / Voids" rows={[["Discounts", money.format(activeDay.discounts)], ["Comps", money.format(activeDay.comps)], ["Voids", money.format(activeDay.voids)], ["Refunds", money.format(activeDay.refunds)]]} />
+        <SheetBlock title="Order Channel Summary" rows={revenueCenters.slice(0, 6).map((row) => [row.label, money.format(row.sales)])} />
+        <SheetBlock title="Daypart Summary" rows={Object.entries(activeDay.dayparts).map(([key, value]) => [key, money.format(value)])} />
+        <div className="sheet-block wide"><h3>Manager Notes</h3><p>{activeDay.managerNote}</p><p>{activeDay.note}</p></div>
+      </div>
+    </section>
+  );
+}
+
+function SheetBlock({ title, rows }) {
+  return <div className="sheet-block"><h3>{title}</h3>{rows.map(([label, value]) => <p key={label}><span>{label}</span><strong>{value}</strong></p>)}</div>;
+}
+
+function RangeView({ rows }) {
+  return (
+    <section className="pos-card range-view-card">
+      <div className="pos-card-head"><h2>Range View · May 5-May 20</h2><span>Compact daily report rows</span></div>
+      <div className="pos-table-wrap"><table className="pos-table range"><thead><tr><th>Date</th><th>Day</th><th>Net Sales</th><th>Labor Cost</th><th>Labor %</th><th>Guests</th><th>Orders</th><th>Average Check</th><th>Online Sales</th><th>Dine-In Sales</th><th>Bar Sales</th><th>Discounts</th><th>Voids</th><th>Refunds</th><th>Tips</th><th>Notes</th></tr></thead><tbody>{rows.map((row) => <tr key={row.date}><td>{row.date.slice(5)}</td><td>{row.day}</td><td>{money.format(row.netSales)}</td><td>{money.format(row.laborCost)}</td><td>{format(row.laborPct, "percent")}</td><td>{row.guestCount}</td><td>{row.orders}</td><td>{exactMoney.format(row.avgCheck)}</td><td>{money.format(row.onlineSales)}</td><td>{money.format(row.dineInSales)}</td><td>{money.format(row.barSales)}</td><td>{money.format(row.discounts)}</td><td>{money.format(row.voids)}</td><td>{money.format(row.refunds)}</td><td>{money.format(row.tips)}</td><td>{row.flags[0]}</td></tr>)}</tbody></table></div>
+    </section>
   );
 }
