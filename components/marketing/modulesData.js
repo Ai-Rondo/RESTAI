@@ -3,7 +3,7 @@ export const moduleLinks = [
   { title: "Sales & Labor", href: "/modules/sales-labor" },
   { title: "Inventory & Food Cost", href: "/modules/inventory-food-cost" },
   { title: "Shift Operations", href: "/modules/shift-operations" },
-  { title: "Guest Feedback", href: "/modules#guest-feedback-reviews" },
+  { title: "Guest Experience Intelligence", href: "/modules/guest-experience-intelligence" },
   { title: "Reviews & Reputation", href: "/modules#guest-feedback-reviews" },
   { title: "Financial Snapshot", href: "/pnl-demo" },
   { title: "Custom Dashboards", href: "/dashboard" }
