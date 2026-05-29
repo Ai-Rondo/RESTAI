@@ -773,6 +773,117 @@ textarea {
   margin: 7px 0;
 }
 
+.fork-demo {
+  background:
+    radial-gradient(circle at 82% 4%, rgba(215, 168, 79, 0.18), transparent 24%),
+    #eef3f0;
+}
+
+.fork-header {
+  background:
+    linear-gradient(135deg, rgba(16, 24, 32, 0.96), rgba(28, 45, 57, 0.96)),
+    radial-gradient(circle at 18% 10%, rgba(28, 140, 122, 0.22), transparent 28%);
+}
+
+.fork-brand {
+  align-items: center;
+  display: flex;
+  gap: 18px;
+}
+
+.fork-brand img {
+  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  height: 74px;
+  object-fit: contain;
+  padding: 8px;
+  width: 74px;
+}
+
+.fork-sales-table .demo-table-head,
+.fork-sales-table .demo-table-row {
+  grid-template-columns: 0.8fr 0.9fr 0.8fr 1fr 1fr 0.8fr;
+}
+
+.annual-table .demo-table-head,
+.annual-table .demo-table-row {
+  grid-template-columns: 0.7fr 1fr 0.8fr 0.8fr 0.7fr 0.9fr;
+}
+
+.labeled-bars {
+  gap: 18px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.annual-bars {
+  gap: 8px;
+  grid-template-columns: repeat(12, 1fr);
+}
+
+.labeled-bars div {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  height: 100%;
+}
+
+.labeled-bars span {
+  align-self: end;
+  width: 100%;
+}
+
+.labeled-bars small {
+  color: var(--muted);
+  font-size: 0.76rem;
+  text-align: center;
+}
+
+.compact-list {
+  max-height: 378px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.source-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.source-chip-grid span {
+  background: #f8faf8;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 8px 10px;
+}
+
+.menu-link {
+  align-items: center;
+  background: var(--teal);
+  border-radius: 8px;
+  color: var(--white);
+  display: inline-flex;
+  font-weight: 850;
+  margin-top: 16px;
+  min-height: 42px;
+  padding: 0 14px;
+}
+
+.demo-wide-note {
+  margin: 0 auto;
+  max-width: 1320px;
+}
+
+.demo-wide-note p {
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 0;
+}
+
 @media (max-width: 980px) {
   .nav-links {
     display: none;
@@ -879,6 +990,11 @@ textarea {
   .demo-header,
   .demo-context {
     align-items: stretch;
+    flex-direction: column;
+  }
+
+  .fork-brand {
+    align-items: flex-start;
     flex-direction: column;
   }
 
