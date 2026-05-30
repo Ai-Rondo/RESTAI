@@ -1,288 +1,380 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useMemo, useState } from "react";
 import {
-  ArrowLeft,
-  Beer,
-  Bell,
-  CalendarDays,
-  ClipboardList,
-  FileText,
-  MessageSquare,
-  ReceiptText,
-  Store,
-  TrendingUp,
-  Users,
-  Utensils
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  BadgeCheck,
+  Building2,
+  ChevronRight,
+  CircleDollarSign,
+  ExternalLink,
+  Flame,
+  ForkKnife,
+  HeartPulse,
+  LineChart,
+  ShieldCheck,
+  Truck,
+  Users
 } from "lucide-react";
+import {
+  actionItems,
+  calculateStoreHealth,
+  deliveryRows,
+  executiveModules,
+  foodCostRows,
+  foodDrillRows,
+  harborStores,
+  laborRows,
+  pnlRows,
+  proteinRows,
+  reviewRows,
+  salesRows,
+  safetyHistory
+} from "@/data/harborHearthExecutiveData";
 
-const stores = ["Fork & Ale House"];
-const ranges = [
-  "Modeled Full Year 2019",
-  "Modeled Q2 2019",
-  "Modeled Q3 2019",
-  "Modeled Q4 2019",
-  "Actual Apr 25-27, 2019",
-  "Apr 25, 2019",
-  "Apr 26, 2019",
-  "Apr 27, 2019",
-  "Payroll Apr 15-28"
-];
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+const number = new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 });
 
-const dailySales = [
-  { day: "Thu 4/25", sales: 6018.12, tax: 542.14, totalRevenue: 6560.26, cashDeposit: -255.0 },
-  { day: "Fri 4/26", sales: 8632.9, tax: 776.91, totalRevenue: 9409.81, cashDeposit: -455.0 },
-  { day: "Sat 4/27", sales: 8267.91, tax: 743.34, totalRevenue: 9011.25, cashDeposit: -996.39 }
-];
+const metricConfig = {
+  score: { label: "Store Health Score", icon: HeartPulse, key: "healthScore", better: "high", unit: "score", route: "Executive" },
+  sales: { label: "Weekly Sales", icon: LineChart, key: "weeklySales", trend: "salesTrend", better: "high", unit: "money", route: "Sales" },
+  foodCost: { label: "Food Cost %", icon: ForkKnife, key: "foodCost", trend: "foodTrend", better: "low", unit: "percent", route: "Food Cost" },
+  labor: { label: "Labor %", icon: Users, key: "labor", trend: "laborTrend", better: "low", unit: "percent", route: "Labor" },
+  reviews: { label: "Guest Review Score", icon: BadgeCheck, key: "reviewScore", trend: "reviewTrend", better: "high", unit: "rating", route: "Reviews" },
+  ebitda: { label: "EBITDA %", icon: CircleDollarSign, key: "ebitda", trend: "ebitdaTrend", better: "high", unit: "percent", route: "P&L" },
+  safety: { label: "Safety Score", icon: ShieldCheck, key: "safety", trend: "safetyTrend", better: "high", unit: "score", route: "Safety" },
+  delivery: { label: "Delivery Performance", icon: Truck, key: "delivery", trend: "deliveryTrend", better: "high", unit: "score", route: "Delivery" },
+  alerts: { label: "Manager Alerts", icon: AlertTriangle, key: "managerAlerts", better: "low", unit: "number", route: "Action Center" },
+  actions: { label: "Open Action Items", icon: AlertTriangle, key: "openActions", better: "low", unit: "number", route: "Action Center" }
+};
 
-const modeledMonths = [
-  { month: "Jan", sales: 146000, labor: 35.8, guests: 4865, issues: 22, primeCost: 64.5, feedback: 4.1 },
-  { month: "Feb", sales: 158500, labor: 34.9, guests: 5283, issues: 20, primeCost: 63.4, feedback: 4.2 },
-  { month: "Mar", sales: 182700, labor: 33.8, guests: 6090, issues: 18, primeCost: 62.1, feedback: 4.3 },
-  { month: "Apr", sales: 205900, labor: 36.6, guests: 6863, issues: 31, primeCost: 66.8, feedback: 4.2, actualAnchor: "DSR + payroll anchor" },
-  { month: "May", sales: 228400, labor: 32.7, guests: 7613, issues: 17, primeCost: 60.9, feedback: 4.4 },
-  { month: "Jun", sales: 244800, labor: 31.9, guests: 8160, issues: 15, primeCost: 59.7, feedback: 4.5 },
-  { month: "Jul", sales: 259600, labor: 31.3, guests: 8653, issues: 14, primeCost: 58.8, feedback: 4.5 },
-  { month: "Aug", sales: 252300, labor: 31.8, guests: 8410, issues: 16, primeCost: 59.4, feedback: 4.4 },
-  { month: "Sep", sales: 231700, labor: 32.6, guests: 7723, issues: 18, primeCost: 60.8, feedback: 4.3 },
-  { month: "Oct", sales: 238900, labor: 32.9, guests: 7963, issues: 19, primeCost: 61.2, feedback: 4.3 },
-  { month: "Nov", sales: 224200, labor: 34.1, guests: 7473, issues: 23, primeCost: 63.1, feedback: 4.2 },
-  { month: "Dec", sales: 267500, labor: 33.4, guests: 8917, issues: 21, primeCost: 62.4, feedback: 4.4 }
-];
+const moduleRows = {
+  sales: salesRows,
+  foodCost: foodCostRows,
+  reviews: reviewRows,
+  delivery: deliveryRows,
+  labor: laborRows,
+  ebitda: pnlRows
+};
 
-const laborByRole = [
-  { role: "Kitchen", hours: 535.8, pay: 7097, sales: 0 },
-  { role: "Server", hours: 459.1, pay: 1003, sales: 21615 },
-  { role: "Host", hours: 273.0, pay: 1957, sales: 0 },
-  { role: "Bartender", hours: 200.3, pay: 324, sales: 7939 }
-];
+const moduleTrail = {
+  sales: ["Sales"],
+  foodCost: ["Food Cost"],
+  food: ["Food Cost", "Food"],
+  protein: ["Food Cost", "Food", "Protein"],
+  reviews: ["Reviews"],
+  delivery: ["Delivery"],
+  labor: ["Labor"],
+  ebitda: ["P&L"],
+  safety: ["Safety"],
+  actions: ["Action Center"]
+};
 
-const topServers = [
-  { name: "Jessica Akin", role: "Server", hours: 36, sales: 2821, salesPerHour: 78, tipPercent: "20.29%" },
-  { name: "Kelsey Polk", role: "Server", hours: 33, sales: 2213, salesPerHour: 67, tipPercent: "21.73%" },
-  { name: "Rachel Tobias", role: "Server", hours: 34, sales: 2154, salesPerHour: 64, tipPercent: "20.62%" },
-  { name: "Meagan Cooley", role: "Server", hours: 33, sales: 1946, salesPerHour: 59, tipPercent: "19.96%" },
-  { name: "Taylor Nasser", role: "Server", hours: 34, sales: 1930, salesPerHour: 56, tipPercent: "23.15%" }
-];
-
-const pmixItems = [
-  { item: "Ale House Dough Balls", category: "Apps", count: 29 },
-  { item: "Wings", category: "Apps", count: 29 },
-  { item: "Calzones", category: "Pizza Line", count: 13 },
-  { item: "Cauli-Curds", category: "Apps", count: 11 },
-  { item: "SM Pizza", category: "Pizza Line", count: 11 },
-  { item: "MD Pizza", category: "Pizza Line", count: 11 },
-  { item: "Cheesehead Burger", category: "Burgers", count: 8 },
-  { item: "Double Layered Nachos", category: "Apps", count: 8 }
-];
-
-const notes = [
-  { source: "DSR", type: "Sales", text: "Opening weekend DSR captured $22,918.93 net sales across Apr 25-27." },
-  { source: "Payroll export", type: "Labor", text: "Payroll period shows 1,468.2 total hours and 64.8 overtime hours." },
-  { source: "FOH schedule", type: "Staffing", text: "FOH schedule includes server pars, AM/PM shifts, manager schedule, and onboarding paperwork tracking." },
-  { source: "PMIX", type: "Product", text: "Thursday PMIX highlights high-volume apps: Dough Balls and Wings at 29 each." },
-  { source: "AOR files", type: "Management", text: "GM, FOH manager, KM, brewer, and master AOR documents can become accountability modules." }
-];
-
-const alerts = [
-  { severity: "High", source: "Payroll", text: "64.8 overtime hours in Apr 15-28 payroll period needs review before scaling schedule model." },
-  { severity: "Medium", source: "DSR", text: "Saturday cash deposit variance is larger than Thursday and Friday." },
-  { severity: "Medium", source: "FOH papers", text: "Onboarding checklist has mixed complete/open employee paperwork items." },
-  { severity: "Low", source: "PMIX", text: "High appetizer volume could inform prep pars and 86'd item tracking." },
-  { severity: "Medium", source: "Modeled year", text: "January, February, April, and November show labor above 34% in the annual model." },
-  { severity: "Low", source: "Modeled year", text: "Summer sales peak creates best window for catering, patio, and beer program analysis." }
-];
-
-const sourceFiles = [
-  "Fork DSR 4.25.19.xlsx",
-  "Fork DSR 4.26.19.xlsx",
-  "Fork DSR 4.27.19.xlsx",
-  "PayrollExport_2019_04_15-2019_04_28 (3).csv",
-  "TOP SERVERS.csv",
-  "Thursday 4_25 PMIX.xlsx",
-  "FOH Schedule.xlsx",
-  "BOH SCHEDULING.xlsx",
-  "F+A Menu.pdf"
-];
-
-function money(value) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
+function formatValue(value, unit) {
+  if (unit === "money") return money.format(value);
+  if (unit === "percent") return `${number.format(value)}%`;
+  if (unit === "rating") return value.toFixed(1);
+  return number.format(value);
 }
 
-function number(value, digits = 0) {
-  return new Intl.NumberFormat("en-US", { maximumFractionDigits: digits }).format(value);
+function trendClass(value, better = "high") {
+  if (!value) return "flat";
+  const good = better === "high" ? value > 0 : value < 0;
+  return good ? "good" : "bad";
 }
 
-export default function DashboardDemo() {
-  const [selectedStore, setSelectedStore] = useState("Fork & Ale House");
-  const [dateRange, setDateRange] = useState("Modeled Full Year 2019");
+function statusFor(score) {
+  if (score >= 90) return "Excellent";
+  if (score >= 84) return "Stable";
+  if (score >= 78) return "Watch";
+  return "Needs Attention";
+}
 
-  const visibleDays = useMemo(() => {
-    if (dateRange.startsWith("Modeled") || dateRange === "Payroll Apr 15-28") return dailySales;
-    if (dateRange === "Apr 25, 2019") return dailySales.slice(0, 1);
-    if (dateRange === "Apr 26, 2019") return dailySales.slice(1, 2);
-    if (dateRange === "Apr 27, 2019") return dailySales.slice(2, 3);
-    return dailySales;
-  }, [dateRange]);
+function rankStores(stores, config) {
+  return [...stores].sort((a, b) => {
+    const direction = config.better === "low" ? 1 : -1;
+    return (a[config.key] - b[config.key]) * direction;
+  });
+}
 
-  const visibleMonths = useMemo(() => {
-    if (dateRange === "Modeled Q2 2019") return modeledMonths.slice(3, 6);
-    if (dateRange === "Modeled Q3 2019") return modeledMonths.slice(6, 9);
-    if (dateRange === "Modeled Q4 2019") return modeledMonths.slice(9, 12);
-    if (dateRange === "Modeled Full Year 2019") return modeledMonths;
-    return [];
-  }, [dateRange]);
+export default function ExecutiveScorecardPage() {
+  const [sortMetric, setSortMetric] = useState("score");
+  const [module, setModule] = useState("foodCost");
+  const [selectedStore, setSelectedStore] = useState("greenwood");
+  const [sourceModal, setSourceModal] = useState(null);
 
-  const usingModeledYear = visibleMonths.length > 0;
-  const actualNetSales = visibleDays.reduce((sum, day) => sum + day.sales, 0);
-  const netSales = usingModeledYear ? visibleMonths.reduce((sum, month) => sum + month.sales, 0) : actualNetSales;
-  const tax = usingModeledYear ? netSales * 0.09 : visibleDays.reduce((sum, day) => sum + day.tax, 0);
-  const totalRevenue = netSales + tax;
-  const laborPay = usingModeledYear
-    ? visibleMonths.reduce((sum, month) => sum + month.sales * (month.labor / 100), 0)
-    : laborByRole.reduce((sum, role) => sum + role.pay, 0);
-  const laborHours = usingModeledYear
-    ? visibleMonths.reduce((sum, month) => sum + Math.round(month.sales / 156), 0)
-    : laborByRole.reduce((sum, role) => sum + role.hours, 0);
-  const laborPercent = netSales ? (laborPay / netSales) * 100 : 45.3;
-  const guestCount = usingModeledYear ? visibleMonths.reduce((sum, month) => sum + month.guests, 0) : 764;
-  const averageFeedback = usingModeledYear
-    ? visibleMonths.reduce((sum, month) => sum + month.feedback, 0) / visibleMonths.length
-    : 4.2;
-  const issueCount = usingModeledYear ? visibleMonths.reduce((sum, month) => sum + month.issues, 0) : alerts.length;
-  const overtimeHours = 64.8;
+  const stores = useMemo(() => harborStores.map((store) => ({ ...store, healthScore: calculateStoreHealth(store) })), []);
+  const sortedStores = useMemo(() => rankStores(stores, metricConfig[sortMetric]), [stores, sortMetric]);
+  const selected = stores.find((store) => store.id === selectedStore) || stores[0];
+  const portfolio = useMemo(() => ({
+    sales: stores.reduce((sum, store) => sum + store.weeklySales, 0),
+    health: Math.round(stores.reduce((sum, store) => sum + store.healthScore, 0) / stores.length),
+    actions: stores.reduce((sum, store) => sum + store.openActions, 0),
+    alerts: stores.reduce((sum, store) => sum + store.managerAlerts, 0)
+  }), [stores]);
+
+  const currentRows = module === "food" ? foodDrillRows : module === "protein" ? proteinRows : moduleRows[module] || [];
 
   return (
-    <main className="demo-shell fork-demo">
-      <header className="demo-header fork-header">
-        <div className="fork-brand">
-          <Image src="/demo-assets/fork-ale-mark.png" alt="Fork & Ale mark" width={74} height={74} />
-          <div>
-            <Link className="back-link" href="/"><ArrowLeft size={16} /> Restaurant Technology Solutions</Link>
-            <Link className="back-link demo-alt-link" href="/pnl-demo">P&L Module Demo</Link>
-            <h1>Fork & Ale Operations Dashboard</h1>
-            <p>Realistic tester view built from historical Fork & Ale DSRs, payroll exports, top-server report, PMIX, schedules, menu files, AORs, and a modeled full-year operating layer.</p>
+    <main className="exec-shell">
+      <header className="exec-hero">
+        <div>
+          <Link href="/" className="exec-back">Restaurant Technology Solutions</Link>
+          <div className="hhg-brand">
+            <span className="hhg-logo"><Flame size={20} /><b>H&H</b></span>
+            <div>
+              <strong>Harbor & Hearth Restaurant Group</strong>
+              <small>Eight-location fictional demo group</small>
+            </div>
           </div>
+          <h1>Executive Scorecard</h1>
+          <p>Compare every location across sales, food cost, labor, reviews, safety, delivery, profitability, alerts, and action items from one command center.</p>
         </div>
-        <div className="demo-controls">
-          <label><Store size={15} /> Store<select value={selectedStore} onChange={(event) => setSelectedStore(event.target.value)}>{stores.map((store) => <option key={store}>{store}</option>)}</select></label>
-          <label><CalendarDays size={15} /> Range<select value={dateRange} onChange={(event) => setDateRange(event.target.value)}>{ranges.map((range) => <option key={range}>{range}</option>)}</select></label>
-        </div>
+        <aside className="exec-positioning">
+          <strong>Unified intelligence layer</strong>
+          <p>Connect the systems you already use. Compare every location in one place. Turn restaurant data into action.</p>
+          <div>
+            <span>Toast</span><span>7shifts</span><span>DoorDash</span><span>Google Reviews</span><span>MarginEdge</span><span>Restaurant365</span>
+          </div>
+        </aside>
       </header>
 
-      <section className="demo-context">
-        <strong>{selectedStore}</strong>
-        <span>{dateRange} - {usingModeledYear ? "modeled from actual Fork & Ale source signals" : "actual local Fork+Ale source files"} - no live integrations yet</span>
+      <section className="exec-rollup">
+        <div><span>Portfolio Sales</span><strong>{money.format(portfolio.sales)}</strong><small>This week across 8 stores</small></div>
+        <div><span>Avg Health Score</span><strong>{portfolio.health}</strong><small>{statusFor(portfolio.health)}</small></div>
+        <div><span>Manager Alerts</span><strong>{portfolio.alerts}</strong><small>{portfolio.alerts > 20 ? "Needs attention" : "Controlled"}</small></div>
+        <div><span>Open Action Items</span><strong>{portfolio.actions}</strong><small>Centralized action center</small></div>
       </section>
 
-      <section className="demo-metrics">
-        <Metric icon={TrendingUp} label="Net Sales" value={money(netSales)} detail={usingModeledYear ? `${visibleMonths.length} modeled month${visibleMonths.length > 1 ? "s" : ""}` : `${visibleDays.length} DSR day${visibleDays.length > 1 ? "s" : ""}`} />
-        <Metric icon={ReceiptText} label="Total Revenue" value={money(totalRevenue)} detail={`${money(tax)} sales tax captured`} />
-        <Metric icon={Users} label="Labor $" value={money(laborPay)} detail={`${number(laborHours, 1)} payroll hours`} alert={laborPercent > 40} />
-        <Metric icon={Bell} label="Open Issues" value={issueCount} detail={usingModeledYear ? `${number(guestCount)} modeled guests` : `${number(overtimeHours, 1)} overtime hours`} alert />
-      </section>
-
-      {usingModeledYear ? (
-        <section className="demo-grid">
-          <article className="demo-panel wide">
-            <div className="demo-panel-heading"><h2>Modeled Monthly Performance</h2><span>Anchored to DSR + payroll signals</span></div>
-            <div className="demo-table annual-table">
-              <div className="demo-table-head"><span>Month</span><span>Sales</span><span>Labor %</span><span>Guests</span><span>Issues</span><span>Prime Cost</span></div>
-              {visibleMonths.map((month) => (
-                <div className="demo-table-row" key={month.month}>
-                  <span>{month.month}</span><span>{money(month.sales)}</span><span>{month.labor.toFixed(1)}%</span><span>{number(month.guests)}</span><span>{month.issues}</span><span>{month.primeCost.toFixed(1)}%</span>
-                </div>
-              ))}
+      <section className="exec-command-grid">
+        <article className="exec-panel exec-rankings">
+          <div className="exec-panel-head">
+            <div>
+              <h2>Which stores need attention right now?</h2>
+              <p>Sortable portfolio ranking. Store comparison stays visible as you drill down.</p>
             </div>
-          </article>
-          <article className="demo-panel">
-            <div className="demo-panel-heading"><h2>Year Signals</h2><span>Modeled tester data</span></div>
-            <div className="demo-list">
-              <div><strong>Average labor</strong><p>{laborPercent.toFixed(1)}% across selected period.</p></div>
-              <div><strong>Guest feedback</strong><p>{averageFeedback.toFixed(1)} modeled average review score.</p></div>
-              <div><strong>Average check</strong><p>{money(netSales / guestCount)} across {number(guestCount)} guests.</p></div>
-              <div><strong>Peak month</strong><p>December modeled at {money(Math.max(...visibleMonths.map((month) => month.sales)))}.</p></div>
-            </div>
-          </article>
-        </section>
-      ) : null}
-
-      <section className="demo-grid">
-        <article className="demo-panel wide">
-          <div className="demo-panel-heading"><h2>Actual Daily Sales Report</h2><span>Source: Fork DSR workbooks</span></div>
-          <div className="demo-table fork-sales-table">
-            <div className="demo-table-head"><span>Day</span><span>Net Sales</span><span>Sales Tax</span><span>Total Revenue</span><span>Cash Deposit</span><span>Status</span></div>
-            {visibleDays.map((day) => (
-              <div className="demo-table-row" key={day.day}>
-                <span>{day.day}</span><span>{money(day.sales)}</span><span>{money(day.tax)}</span><span>{money(day.totalRevenue)}</span><span>{money(day.cashDeposit)}</span><span>{Math.abs(day.cashDeposit) > 800 ? "Review" : "Logged"}</span>
-              </div>
-            ))}
+            <select value={sortMetric} onChange={(event) => setSortMetric(event.target.value)}>
+              {Object.entries(metricConfig).map(([key, metric]) => <option key={key} value={key}>{metric.label}</option>)}
+            </select>
           </div>
-        </article>
-        <article className="demo-panel">
-          <div className="demo-panel-heading"><h2>{usingModeledYear ? "Annual Sales Trend" : "Sales Trend"}</h2><span>{usingModeledYear ? "Modeled 2019" : "Apr 25-27 DSR"}</span></div>
-          <div className={usingModeledYear ? "demo-bars labeled-bars annual-bars" : "demo-bars labeled-bars"}>
-            {(usingModeledYear ? visibleMonths : dailySales).map((item) => {
-              const label = usingModeledYear ? item.month : item.day;
-              const value = usingModeledYear ? item.sales : item.sales;
-              const max = usingModeledYear ? Math.max(...visibleMonths.map((month) => month.sales)) : 9000;
-              return <div key={label}><span style={{ height: `${Math.max((value / max) * 100, 12)}%` }} /><small>{label}</small></div>;
+          <div className="exec-sort-pills">
+            {Object.entries(metricConfig).map(([key, metric]) => {
+              const Icon = metric.icon;
+              return <button className={sortMetric === key ? "active" : ""} key={key} type="button" onClick={() => setSortMetric(key)}><Icon size={14} />{metric.label}</button>;
             })}
           </div>
+          <ComparisonTable stores={sortedStores} metric={metricConfig[sortMetric]} onSelectStore={setSelectedStore} selectedStore={selectedStore} onMetricClick={setModule} />
         </article>
+
+        <aside className="exec-panel exec-store-focus">
+          <span>Selected store</span>
+          <h2>{selected.name}</h2>
+          <p>{selected.profile}</p>
+          <div className={`exec-health-ring ${statusFor(selected.healthScore).toLowerCase().replace(" ", "-")}`} style={{ "--score": selected.healthScore }}>
+            <strong>{selected.healthScore}</strong>
+            <small>{statusFor(selected.healthScore)}</small>
+          </div>
+          <div className="exec-store-mini">
+            <div><span>Manager</span><b>{selected.manager}</b></div>
+            <div><span>Sales</span><b>{money.format(selected.weeklySales)}</b></div>
+            <div><span>Food</span><b>{selected.foodCost}%</b></div>
+            <div><span>Labor</span><b>{selected.labor}%</b></div>
+          </div>
+        </aside>
       </section>
 
-      <section className="demo-grid">
-        <article className="demo-panel">
-          <div className="demo-panel-heading"><h2><Users size={18} /> Labor by Role</h2><span>Source: payroll export</span></div>
-          <div className="demo-list">{laborByRole.map((role) => <div key={role.role}><strong>{role.role}</strong><p>{number(role.hours, 1)} hours - {money(role.pay)} total pay{role.sales ? ` - ${money(role.sales)} sales` : ""}</p></div>)}</div>
+      <section className="exec-command-grid lower">
+        <article className="exec-panel exec-drilldown">
+          <div className="exec-panel-head">
+            <div>
+              <h2>Comparison Drill-Down</h2>
+              <p>{executiveModules[module]?.description || "Drill into the selected operating area while keeping every store visible."}</p>
+            </div>
+            <div className="exec-breadcrumbs">
+              {(moduleTrail[module] || ["Food Cost"]).map((item) => <span key={item}>{item}</span>)}
+            </div>
+          </div>
+          <div className="exec-module-tabs">
+            <button className={module === "foodCost" ? "active" : ""} type="button" onClick={() => setModule("foodCost")}>Food Cost</button>
+            <button className={module === "sales" ? "active" : ""} type="button" onClick={() => setModule("sales")}>Sales</button>
+            <button className={module === "reviews" ? "active" : ""} type="button" onClick={() => setModule("reviews")}>Reviews</button>
+            <button className={module === "delivery" ? "active" : ""} type="button" onClick={() => setModule("delivery")}>Delivery</button>
+            <button className={module === "labor" ? "active" : ""} type="button" onClick={() => setModule("labor")}>Labor</button>
+            <button className={module === "ebitda" ? "active" : ""} type="button" onClick={() => setModule("ebitda")}>P&L</button>
+            <button className={module === "safety" ? "active" : ""} type="button" onClick={() => setModule("safety")}>Safety</button>
+            <button className={module === "actions" ? "active" : ""} type="button" onClick={() => setModule("actions")}>Action Center</button>
+          </div>
+          {module === "safety" ? (
+            <SafetyModule stores={stores} />
+          ) : module === "actions" ? (
+            <ActionCenter onOpenSource={setSourceModal} />
+          ) : (
+            <DrilldownMatrix stores={stores} rows={currentRows} module={module} onModuleChange={setModule} onOpenSource={setSourceModal} />
+          )}
         </article>
-        <article className="demo-panel">
-          <div className="demo-panel-heading"><h2><Beer size={18} /> Top Servers</h2><span>Source: TOP SERVERS.csv</span></div>
-          <div className="demo-list compact-list">{topServers.map((server) => <div key={server.name}><strong>{server.name}</strong><p>{money(server.sales)} sales - ${server.salesPerHour}/hr - {server.tipPercent} tip</p></div>)}</div>
-        </article>
+
+        <aside className="exec-panel exec-insights">
+          <h2>Executive Signals</h2>
+          <div>
+            <strong>Broad Ripple needs the first call.</strong>
+            <p>Health score is down because sales softened while food cost, reviews, delivery, and safety all moved in the wrong direction.</p>
+          </div>
+          <div>
+            <strong>Greenwood is the current playbook.</strong>
+            <p>Best blend of profitability, safety, cost control, and guest sentiment. Capture routines for training.</p>
+          </div>
+          <div>
+            <strong>Downtown sales are hiding cost leakage.</strong>
+            <p>Highest weekly sales, but food cost and delivery refunds are pressuring EBITDA.</p>
+          </div>
+          <div>
+            <strong>Fishers is a labor coaching opportunity.</strong>
+            <p>Guest scores are excellent, but labor is trending high despite stable sales volume.</p>
+          </div>
+        </aside>
       </section>
 
-      <section className="demo-grid">
-        <article className="demo-panel">
-          <div className="demo-panel-heading"><h2><Utensils size={18} /> Product Mix</h2><span>Thursday 4/25 PMIX</span></div>
-          <div className="demo-list compact-list">{pmixItems.map((item) => <div key={item.item}><strong>{item.item}</strong><p>{item.category} - {item.count} sold</p></div>)}</div>
-        </article>
-        <article className="demo-panel">
-          <div className="demo-panel-heading"><h2><ClipboardList size={18} /> Shift Notes</h2><span>Generated from source files</span></div>
-          <div className="demo-list">{notes.map((note) => <div key={`${note.source}-${note.type}`}><strong>{note.source} - {note.type}</strong><p>{note.text}</p></div>)}</div>
-        </article>
-      </section>
-
-      <section className="demo-grid">
-        <article className="demo-panel">
-          <div className="demo-panel-heading"><h2><Bell size={18} /> Operational Alerts</h2><span>Fork & Ale tester</span></div>
-          <div className="demo-list">{alerts.map((alert) => <div key={`${alert.source}-${alert.text}`}><strong>{alert.severity} - {alert.source}</strong><p>{alert.text}</p></div>)}</div>
-        </article>
-        <article className="demo-panel">
-          <div className="demo-panel-heading"><h2><FileText size={18} /> Source Systems</h2><span>What the dashboard can ingest</span></div>
-          <div className="source-chip-grid">{sourceFiles.map((file) => <span key={file}>{file}</span>)}</div>
-          <a className="menu-link" href="/demo-assets/fork-ale-menu.pdf" target="_blank" rel="noreferrer">Open copied Fork & Ale menu PDF</a>
-        </article>
-      </section>
-
-      <section className="demo-panel demo-wide-note">
-        <div className="demo-panel-heading"><h2><MessageSquare size={18} /> What this proves</h2><span>Restaurant Technology Solutions use case</span></div>
-        <p>Fork & Ale has the same operational footprint Restaurant Technology Solutions is designed for: sales reports, payroll, schedules, product mix, training docs, management AORs, menus, and daily notes spread across files. The dashboard does not replace those files or systems. It organizes their signals into one operating view.</p>
-      </section>
+      {sourceModal ? <SourceModal source={sourceModal} onClose={() => setSourceModal(null)} /> : null}
     </main>
   );
 }
 
-function Metric({ icon: Icon, label, value, detail, alert = false }) {
+function ComparisonTable({ stores, metric, onSelectStore, selectedStore, onMetricClick }) {
   return (
-    <article className={alert ? "demo-metric alert" : "demo-metric"}>
-      <Icon size={20} />
-      <span>{label}</span>
-      <strong>{value}</strong>
-      <small>{detail}</small>
-    </article>
+    <div className="exec-table-wrap">
+      <table className="exec-table">
+        <thead>
+          <tr>
+            <th>Rank</th><th>Store</th><th>Health</th><th>Weekly Sales</th><th>Food Cost</th><th>Labor</th><th>Reviews</th><th>EBITDA</th><th>Safety</th><th>Delivery</th><th>Alerts</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stores.map((store, index) => (
+            <tr className={selectedStore === store.id ? "selected" : ""} key={store.id} onClick={() => onSelectStore(store.id)}>
+              <td>#{index + 1}</td>
+              <td><strong>{store.name}</strong><small>{store.manager}</small></td>
+              <td><ScoreBadge score={store.healthScore} /></td>
+              <td><MetricButton value={store.weeklySales} unit="money" trend={store.salesTrend} better="high" onClick={() => onMetricClick("sales")} /></td>
+              <td><MetricButton value={store.foodCost} unit="percent" trend={store.foodTrend} better="low" onClick={() => onMetricClick("foodCost")} /></td>
+              <td><MetricButton value={store.labor} unit="percent" trend={store.laborTrend} better="low" onClick={() => onMetricClick("labor")} /></td>
+              <td><MetricButton value={store.reviewScore} unit="rating" trend={store.reviewTrend} better="high" onClick={() => onMetricClick("reviews")} /></td>
+              <td><MetricButton value={store.ebitda} unit="percent" trend={store.ebitdaTrend} better="high" onClick={() => onMetricClick("ebitda")} /></td>
+              <td><MetricButton value={store.safety} unit="score" trend={store.safetyTrend} better="high" onClick={() => onMetricClick("safety")} /></td>
+              <td><MetricButton value={store.delivery} unit="score" trend={store.deliveryTrend} better="high" onClick={() => onMetricClick("delivery")} /></td>
+              <td><MetricButton value={store.managerAlerts} unit="number" better="low" onClick={() => onMetricClick("actions")} /></td>
+              <td><MetricButton value={store.openActions} unit="number" better="low" onClick={() => onMetricClick("actions")} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="exec-table-note">Currently sorted by {metric.label}. Click any metric cell to open the related comparison module.</p>
+    </div>
+  );
+}
+
+function MetricButton({ value, unit, trend = 0, better, onClick }) {
+  return (
+    <button className="exec-metric-button" type="button" onClick={(event) => { event.stopPropagation(); onClick(); }}>
+      <strong>{formatValue(value, unit)}</strong>
+      {trend ? <small className={trendClass(trend, better)}>{trend > 0 ? <ArrowUp size={12} /> : <ArrowDown size={12} />}{Math.abs(trend)}{unit === "rating" ? "" : unit === "money" ? "%" : unit === "score" ? "" : ""}</small> : <small>View</small>}
+    </button>
+  );
+}
+
+function ScoreBadge({ score }) {
+  return <span className={`score-badge ${statusFor(score).toLowerCase().replace(" ", "-")}`}>{score}</span>;
+}
+
+function DrilldownMatrix({ stores, rows, module, onModuleChange, onOpenSource }) {
+  return (
+    <div className="matrix-wrap">
+      <div className="matrix-grid" style={{ "--store-count": stores.length }}>
+        <div className="matrix-head label">Metric</div>
+        {stores.map((store) => <div className="matrix-head" key={store.id}>{store.name}</div>)}
+        {rows.map((row) => (
+          <RowCells key={row.label} row={row} stores={stores} module={module} onModuleChange={onModuleChange} onOpenSource={onOpenSource} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RowCells({ row, stores, module, onModuleChange, onOpenSource }) {
+  const max = Math.max(...row.values);
+  const min = Math.min(...row.values);
+  return (
+    <>
+      <button className="matrix-label" type="button" onClick={() => {
+        if (module === "foodCost" && row.label === "Food") onModuleChange("food");
+        else if (module === "food" && row.label === "Protein") onModuleChange("protein");
+        else onOpenSource({ source: row.source || executiveModules[module]?.source || "Connected Source System", metric: row.label });
+      }}>
+        <span>{row.label}</span>
+        <ChevronRight size={14} />
+      </button>
+      {stores.map((store, index) => {
+        const value = row.values[index];
+        const highRisk = row.target === 0 ? value > 1 : value > row.target * 1.08;
+        const good = row.target === 0 ? value <= 0 : value <= row.target;
+        const intensity = (value - min) / Math.max(1, max - min);
+        return (
+          <button className={`matrix-cell ${good ? "good" : highRisk ? "risk" : "watch"}`} style={{ "--intensity": intensity }} type="button" key={`${row.label}-${store.id}`} onClick={() => onOpenSource({ source: row.source || executiveModules[module]?.source || "Connected Source System", metric: `${store.name} / ${row.label}` })}>
+            <strong>{formatValue(value, row.label.includes("Sales") || row.label === "Sales" ? "money" : row.label.includes("Rating") || row.label === "Guest Rating" ? "rating" : row.label.includes("Count") || row.label.includes("Volume") || row.label.includes("Hours") || row.label.includes("Positions") || row.label.includes("Time") ? "number" : "percent")}</strong>
+            <span>{good ? "Good" : highRisk ? "High" : "Watch"}</span>
+          </button>
+        );
+      })}
+    </>
+  );
+}
+
+function SafetyModule({ stores }) {
+  return (
+    <div className="safety-module">
+      {stores.map((store) => (
+        <div key={store.id}>
+          <strong>{store.name}</strong>
+          <div>{safetyHistory[store.name].map((status, index) => <span className={status} key={`${store.name}-${index}`}>{status}</span>)}</div>
+          <small>Current score {store.safety} / trend {store.safetyTrend >= 0 ? "+" : ""}{store.safetyTrend}</small>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ActionCenter({ onOpenSource }) {
+  return (
+    <div className="action-center">
+      {actionItems.map((item) => (
+        <button className={item.severity.toLowerCase()} key={`${item.store}-${item.issue}`} type="button" onClick={() => onOpenSource({ source: item.source, metric: item.issue })}>
+          <span>{item.severity}</span>
+          <strong>{item.store}</strong>
+          <p>{item.issue}</p>
+          <small>{item.owner} / due {item.due}</small>
+          <ExternalLink size={14} />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function SourceModal({ source, onClose }) {
+  return (
+    <div className="source-modal-backdrop" role="presentation" onClick={onClose}>
+      <section className="source-modal" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
+        <span>External source system placeholder</span>
+        <h2>{source.metric}</h2>
+        <p>This would open the connected source system in a live deployment.</p>
+        <div>
+          <Building2 size={18} />
+          <strong>{source.source}</strong>
+        </div>
+        <p>Restaurant Technology Solutions does not replace the source system. It keeps comparison visible, then sends the operator to the record of truth when deeper action is required.</p>
+        <button type="button" onClick={onClose}>Close</button>
+      </section>
+    </div>
   );
 }
