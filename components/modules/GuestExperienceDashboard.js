@@ -128,7 +128,30 @@ export default function GuestExperienceDashboard() {
         </section>
       </header>
 
-      <section className="guest-kpi-grid">{guestKpis.map((kpi) => <KpiCard kpi={kpi} key={kpi.label} />)}</section>
+      <section className="guest-experience-console">
+        <article className="guest-score-stage">
+          <span>Hospitality pulse</span>
+          <strong>88</strong>
+          <p>Guest satisfaction is healthy overall, but dinner and order accuracy are creating the largest drag on return intent.</p>
+          <div>
+            <b>NPS 58</b>
+            <b>Would return 91%</b>
+            <b>Recovered 72%</b>
+          </div>
+        </article>
+        <div className="guest-journey-strip">
+          {dayparts.map((part) => (
+            <div key={part.name}>
+              <span>{part.name}</span>
+              <strong>{part.score}</strong>
+              <small>{part.complaint}</small>
+            </div>
+          ))}
+        </div>
+        <aside className="guest-signal-dock">
+          {guestKpis.map((kpi) => <KpiCard kpi={kpi} key={kpi.label} />)}
+        </aside>
+      </section>
 
       <section className="guest-grid">
         <article className="guest-panel guest-wide">

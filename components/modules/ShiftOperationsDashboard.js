@@ -283,8 +283,28 @@ export default function ShiftOperationsDashboard() {
         </section>
       </header>
 
-      <section className="shift-sync-strip">{shiftSyncSources.map(([label, time]) => <div key={label}><span>{label}</span><strong>{time}</strong></div>)}</section>
-      <section className="shift-kpi-grid">{shiftKpis.map((kpi) => <ShiftOpsKpiCard kpi={kpi} key={kpi.label} />)}</section>
+      <section className="shift-command-center">
+        <article className="shift-clipboard-card">
+          <span>MOD clipboard</span>
+          <strong>86</strong>
+          <p>Current shift score with three owner attention items and one critical follow-up due tomorrow.</p>
+          <div>
+            {shiftKpis.slice(1, 5).map((kpi) => <small key={kpi.label}>{kpi.label}: <b>{kpi.value}</b></small>)}
+          </div>
+        </article>
+        <div className="shift-sync-column">
+          {shiftSyncSources.map(([label, time]) => <div key={label}><span>{label}</span><strong>{time}</strong></div>)}
+        </div>
+        <div className="shift-ops-ticket-board">
+          {shiftKpis.map((kpi) => (
+            <button className={cls(kpi.status)} type="button" key={kpi.label}>
+              <span>{kpi.label}</span>
+              <strong>{kpi.value}</strong>
+              <small>{kpi.change}</small>
+            </button>
+          ))}
+        </div>
+      </section>
 
       <section className="shift-grid">
         <article className="shift-panel shift-wide">

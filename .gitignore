@@ -9,3 +9,6 @@ yarn-error.log*
 
 # Local Netlify folder
 .netlify
+
+# Local Cloudflare/Next build output
+.vercel

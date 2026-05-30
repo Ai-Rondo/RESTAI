@@ -221,6 +221,29 @@ export default function ForkSalesLaborDashboard() {
 
       {viewMode === "Report" && (
         <>
+          <section className="pos-live-strip">
+            <div>
+              <span>Live report</span>
+              <strong>{activeDay.day} {activeDay.date.slice(5)}</strong>
+            </div>
+            <div>
+              <span>Last POS sync</span>
+              <strong>Today 4:12 AM</strong>
+            </div>
+            <div>
+              <span>Labor posture</span>
+              <strong className={summary.laborPct > 0.32 ? "pos-bad" : "pos-good"}>{format(summary.laborPct, "percent")}</strong>
+            </div>
+            <div>
+              <span>Open checks</span>
+              <strong>{activeDay.openChecks}</strong>
+            </div>
+            <div>
+              <span>Clocked in</span>
+              <strong>{employees.length} people</strong>
+            </div>
+          </section>
+
           <section className="pos-primary-panel">
             <div className="pos-primary-top">
               <div>

@@ -339,12 +339,35 @@ export default function InventoryFoodCostDashboard() {
         </div>
       </header>
 
-      <section className="sync-strip">
-        {syncSources.map(([label, time]) => <div key={label}><span>{label}</span><strong>{time}</strong></div>)}
-      </section>
-
-      <section className="inv-kpi-grid">
-        {inventoryKpis.map((kpi) => <InventoryKpiCard key={kpi.label} kpi={kpi} />)}
+      <section className="inv-cockpit">
+        <article className="inv-cost-ledger">
+          <span className="inv-ledger-label">Food cost control board</span>
+          <div className="inv-ledger-numbers">
+            <div><span>Actual</span><strong>33.0%</strong></div>
+            <div><span>Theoretical</span><strong>29.6%</strong></div>
+            <div><span>Variance</span><strong>3.4 pts</strong></div>
+            <div><span>Target</span><strong>28.5%</strong></div>
+          </div>
+          <p>Actual food cost is running above theoretical. Seafood variance, produce spoilage, and invoice price movement need review before the next order cycle.</p>
+          <div className="sync-rail">
+            {syncSources.map(([label, time]) => <div key={label}><span>{label}</span><strong>{time}</strong></div>)}
+          </div>
+        </article>
+        <div className="inv-ledger-stack">
+          {inventoryKpis.map((kpi) => <InventoryKpiCard key={kpi.label} kpi={kpi} />)}
+        </div>
+        <article className="inv-buyer-queue">
+          <span className="inv-ledger-label">Chef buyer queue</span>
+          <h2>Next purchasing decisions</h2>
+          {purchaseRecommendations.slice(0, 4).map((item) => (
+            <div key={item.item}>
+              <strong>{item.item}</strong>
+              <span>{item.vendor}</span>
+              <small>{item.onHand} on hand / par {item.par} / order {item.order}</small>
+              <b className={statusClass(item.urgency)}>{item.urgency}</b>
+            </div>
+          ))}
+        </article>
       </section>
 
       <section className="inventory-grid">
