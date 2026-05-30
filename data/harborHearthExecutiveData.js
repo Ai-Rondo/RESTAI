@@ -15,8 +15,6 @@ export const harborStores = [
     ebitdaTrend: 1.4,
     safety: 96,
     safetyTrend: 1,
-    delivery: 91,
-    deliveryTrend: 2,
     managerAlerts: 2,
     openActions: 4,
     profile: "High-volume store with good momentum, but protein cost is drifting above target."
@@ -37,11 +35,9 @@ export const harborStores = [
     ebitdaTrend: -0.8,
     safety: 89,
     safetyTrend: -2,
-    delivery: 94,
-    deliveryTrend: 1,
     managerAlerts: 3,
     openActions: 5,
-    profile: "Excellent guest sentiment and delivery execution, but labor control needs attention."
+    profile: "Excellent guest sentiment, but labor control needs attention."
   },
   {
     id: "broad-ripple",
@@ -59,8 +55,6 @@ export const harborStores = [
     ebitdaTrend: -2.2,
     safety: 82,
     safetyTrend: -5,
-    delivery: 86,
-    deliveryTrend: -3,
     managerAlerts: 7,
     openActions: 11,
     profile: "Needs attention: sales softened while food cost, review sentiment, and safety trend worsened."
@@ -81,11 +75,9 @@ export const harborStores = [
     ebitdaTrend: -0.6,
     safety: 91,
     safetyTrend: 0,
-    delivery: 82,
-    deliveryTrend: -5,
     managerAlerts: 5,
     openActions: 8,
-    profile: "Great sales and labor discipline, but food cost and delivery refunds are eating margin."
+    profile: "Great sales and labor discipline, but food cost is eating margin."
   },
   {
     id: "greenwood",
@@ -103,8 +95,6 @@ export const harborStores = [
     ebitdaTrend: 1.9,
     safety: 98,
     safetyTrend: 2,
-    delivery: 92,
-    deliveryTrend: 1,
     managerAlerts: 1,
     openActions: 2,
     profile: "Overall top performer with strong profitability, stable controls, and clean audit history."
@@ -125,11 +115,9 @@ export const harborStores = [
     ebitdaTrend: -1.0,
     safety: 94,
     safetyTrend: 1,
-    delivery: 77,
-    deliveryTrend: -6,
     managerAlerts: 4,
     openActions: 7,
-    profile: "Profitable enough, but delivery experience is declining and review score is slipping."
+    profile: "Profitable enough, but review score is slipping and labor needs a closer look."
   },
   {
     id: "noblesville",
@@ -147,8 +135,6 @@ export const harborStores = [
     ebitdaTrend: 0.7,
     safety: 95,
     safetyTrend: 0,
-    delivery: 90,
-    deliveryTrend: 2,
     managerAlerts: 2,
     openActions: 3,
     profile: "Consistent operator with balanced sales, cost control, safety, and guest experience."
@@ -169,8 +155,6 @@ export const harborStores = [
     ebitdaTrend: 1.1,
     safety: 97,
     safetyTrend: 1,
-    delivery: 88,
-    deliveryTrend: -1,
     managerAlerts: 1,
     openActions: 2,
     profile: "Lower-volume but highly controlled store with outstanding reviews and strong margin."
@@ -220,13 +204,6 @@ export const executiveModules = {
     target: 92,
     description: "Audit trend visibility for food safety, sanitation, and compliance."
   },
-  delivery: {
-    label: "Delivery Performance",
-    unit: "score",
-    source: "DoorDash / Uber Eats",
-    target: 88,
-    description: "Tracks off-premise execution, ratings, refunds, accuracy, and delivery time."
-  }
 };
 
 export const foodCostRows = [
@@ -277,16 +254,6 @@ export const reviewRows = [
   { label: "Staff Friendliness", target: 90, values: [91, 96, 82, 86, 94, 84, 89, 97] }
 ];
 
-export const deliveryRows = [
-  { label: "DoorDash", target: 88, values: [90, 94, 84, 78, 91, 74, 88, 87] },
-  { label: "Uber Eats", target: 88, values: [92, 93, 86, 83, 93, 80, 91, 89] },
-  { label: "Average Delivery Time", target: 31, values: [29, 27, 36, 41, 28, 43, 32, 33] },
-  { label: "Accuracy %", target: 96, values: [96, 98, 93, 91, 97, 90, 96, 95] },
-  { label: "Guest Rating", target: 4.4, values: [4.5, 4.7, 4.1, 3.9, 4.6, 3.8, 4.4, 4.3] },
-  { label: "Refund %", target: 2.5, values: [2.2, 1.6, 3.7, 5.1, 1.9, 6.2, 2.4, 2.8] },
-  { label: "Order Volume", target: 350, values: [390, 362, 481, 524, 334, 308, 347, 246] }
-];
-
 export const laborRows = [
   { label: "Labor %", target: 31, values: [30.4, 35.7, 33.4, 29.8, 28.9, 31.6, 30.1, 27.6] },
   { label: "OT %", target: 2.5, values: [2.6, 5.8, 4.1, 2.1, 1.6, 3.0, 2.2, 1.4] },
@@ -321,7 +288,48 @@ export const actionItems = [
   { store: "Downtown Indy", issue: "Food Cost Above Target", severity: "High", source: "MarginEdge", owner: "Ops Director", due: "Today" },
   { store: "Fishers", issue: "Safety Audit Due", severity: "Medium", source: "Checklist System", owner: "Area Manager", due: "2 days" },
   { store: "Greenwood", issue: "Prepare top-performer playbook", severity: "Low", source: "Scorecard", owner: "Training Lead", due: "Next week" },
-  { store: "Westfield", issue: "Delivery Refunds Rising", severity: "High", source: "DoorDash", owner: "GM", due: "Today" },
+  { store: "Westfield", issue: "Guest Review Score Slipping", severity: "High", source: "Guest Reviews", owner: "GM", due: "Today" },
   { store: "Broad Ripple", issue: "Review Score Declining", severity: "High", source: "Google Reviews", owner: "District Manager", due: "Today" },
   { store: "Carmel", issue: "Protein Cost Drift", severity: "Medium", source: "Vendor Invoices", owner: "Chef Partner", due: "3 days" }
+];
+
+export const reviewFeed = [
+  { store: "Zionsville", rating: 5, source: "Google", comment: "Staff was polished and the dining room looked spotless.", tag: "Service" },
+  { store: "Broad Ripple", rating: 2, source: "Yelp", comment: "Food was good but the wait was long and the table needed attention.", tag: "Speed" },
+  { store: "Downtown Indy", rating: 3, source: "Google", comment: "Great energy, but our takeout order was missing two sides.", tag: "Accuracy" },
+  { store: "Fishers", rating: 5, source: "TripAdvisor", comment: "Manager checked on us and the team was very friendly.", tag: "Hospitality" },
+  { store: "Westfield", rating: 3, source: "Google", comment: "Service felt slower than usual and the food was not as hot as expected.", tag: "Speed" },
+  { store: "Greenwood", rating: 5, source: "Google", comment: "Consistent food and fast service every visit.", tag: "Food Quality" }
+];
+
+export const weeklyTrend = {
+  labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  sales: [48500, 47200, 50600, 52900, 66800, 71100, 61100],
+  labor: [30.2, 31.8, 32.6, 31.1, 29.8, 30.7, 32.4],
+  reviews: [4.42, 4.38, 4.31, 4.45, 4.54, 4.48, 4.36],
+  ebitda: [9.4, 8.8, 9.1, 10.2, 12.6, 13.1, 10.8],
+  safety: [94, 94, 93, 92, 92, 91, 91]
+};
+
+export const laborRoleMix = [
+  { label: "FOH", values: [33, 36, 34, 31, 32, 35, 33, 30] },
+  { label: "BOH", values: [44, 42, 45, 43, 41, 43, 44, 42] },
+  { label: "Bar", values: [12, 10, 13, 16, 9, 10, 11, 8] },
+  { label: "Management", values: [11, 12, 8, 10, 18, 12, 12, 20] }
+];
+
+export const salesMix = [
+  { label: "Dine-In", values: [62, 58, 64, 55, 63, 57, 60, 68] },
+  { label: "Takeout", values: [18, 22, 16, 20, 17, 21, 19, 14] },
+  { label: "Bar", values: [20, 20, 20, 25, 20, 22, 21, 18] }
+];
+
+export const safetyCategoryRows = [
+  { label: "Food Temp Logs", target: 92, values: [96, 90, 79, 91, 98, 94, 95, 97] },
+  { label: "Cleanliness", target: 92, values: [95, 92, 81, 90, 98, 93, 94, 97] },
+  { label: "Storage", target: 92, values: [94, 89, 83, 90, 97, 93, 94, 96] },
+  { label: "Labeling", target: 92, values: [97, 91, 76, 88, 98, 92, 96, 97] },
+  { label: "Handwashing", target: 92, values: [96, 93, 84, 91, 99, 94, 96, 98] },
+  { label: "Equipment", target: 92, values: [94, 87, 80, 90, 97, 91, 93, 96] },
+  { label: "Pest Control", target: 92, values: [98, 95, 88, 94, 99, 96, 97, 98] }
 ];
