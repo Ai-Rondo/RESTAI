@@ -15,6 +15,8 @@ export const harborStores = [
     ebitdaTrend: 1.4,
     safety: 96,
     safetyTrend: 1,
+    delivery: 91,
+    deliveryTrend: 2,
     managerAlerts: 2,
     openActions: 4,
     profile: "High-volume store with good momentum, but protein cost is drifting above target."
@@ -35,6 +37,8 @@ export const harborStores = [
     ebitdaTrend: -0.8,
     safety: 89,
     safetyTrend: -2,
+    delivery: 94,
+    deliveryTrend: 1,
     managerAlerts: 3,
     openActions: 5,
     profile: "Excellent guest sentiment, but labor control needs attention."
@@ -55,6 +59,8 @@ export const harborStores = [
     ebitdaTrend: -2.2,
     safety: 82,
     safetyTrend: -5,
+    delivery: 86,
+    deliveryTrend: -3,
     managerAlerts: 7,
     openActions: 11,
     profile: "Needs attention: sales softened while food cost, review sentiment, and safety trend worsened."
@@ -75,6 +81,8 @@ export const harborStores = [
     ebitdaTrend: -0.6,
     safety: 91,
     safetyTrend: 0,
+    delivery: 82,
+    deliveryTrend: -5,
     managerAlerts: 5,
     openActions: 8,
     profile: "Great sales and labor discipline, but food cost is eating margin."
@@ -95,6 +103,8 @@ export const harborStores = [
     ebitdaTrend: 1.9,
     safety: 98,
     safetyTrend: 2,
+    delivery: 92,
+    deliveryTrend: 1,
     managerAlerts: 1,
     openActions: 2,
     profile: "Overall top performer with strong profitability, stable controls, and clean audit history."
@@ -115,6 +125,8 @@ export const harborStores = [
     ebitdaTrend: -1.0,
     safety: 94,
     safetyTrend: 1,
+    delivery: 77,
+    deliveryTrend: -6,
     managerAlerts: 4,
     openActions: 7,
     profile: "Profitable enough, but review score is slipping and labor needs a closer look."
@@ -135,6 +147,8 @@ export const harborStores = [
     ebitdaTrend: 0.7,
     safety: 95,
     safetyTrend: 0,
+    delivery: 90,
+    deliveryTrend: 2,
     managerAlerts: 2,
     openActions: 3,
     profile: "Consistent operator with balanced sales, cost control, safety, and guest experience."
@@ -155,6 +169,8 @@ export const harborStores = [
     ebitdaTrend: 1.1,
     safety: 97,
     safetyTrend: 1,
+    delivery: 88,
+    deliveryTrend: -1,
     managerAlerts: 1,
     openActions: 2,
     profile: "Lower-volume but highly controlled store with outstanding reviews and strong margin."
@@ -203,6 +219,13 @@ export const executiveModules = {
     source: "Health Audit / Checklist System",
     target: 92,
     description: "Audit trend visibility for food safety, sanitation, and compliance."
+  },
+  delivery: {
+    label: "Delivery Performance",
+    unit: "score",
+    source: "DoorDash / Uber Eats",
+    target: 88,
+    description: "Off-premise execution, ratings, refunds, accuracy, delivery time, and order volume."
   },
 };
 
@@ -263,6 +286,15 @@ export const laborRows = [
   { label: "Open Positions", target: 2, values: [2, 5, 4, 1, 1, 3, 2, 0] }
 ];
 
+export const deliveryRows = [
+  { label: "Delivery Rating", target: 4.4, values: [4.5, 4.7, 4.1, 3.9, 4.6, 3.8, 4.4, 4.3] },
+  { label: "Delivery Score", target: 88, values: [91, 94, 86, 82, 92, 77, 90, 88] },
+  { label: "Average Delivery Time", target: 31, values: [29, 27, 36, 41, 28, 43, 32, 33] },
+  { label: "Accuracy %", target: 96, values: [96, 98, 93, 91, 97, 90, 96, 95] },
+  { label: "Refund %", target: 2.5, values: [2.2, 1.6, 3.7, 5.1, 1.9, 6.2, 2.4, 2.8] },
+  { label: "Order Volume", target: 350, values: [390, 362, 481, 524, 334, 308, 347, 246] }
+];
+
 export const pnlRows = [
   { label: "EBITDA", target: 10, values: [12.8, 9.2, 6.1, 8.4, 15.6, 8.8, 11.7, 14.9] },
   { label: "Profit %", target: 9, values: [10.9, 7.5, 4.8, 6.7, 13.2, 7.1, 9.8, 12.6] },
@@ -288,7 +320,7 @@ export const actionItems = [
   { store: "Downtown Indy", issue: "Food Cost Above Target", severity: "High", source: "MarginEdge", owner: "Ops Director", due: "Today" },
   { store: "Fishers", issue: "Safety Audit Due", severity: "Medium", source: "Checklist System", owner: "Area Manager", due: "2 days" },
   { store: "Greenwood", issue: "Prepare top-performer playbook", severity: "Low", source: "Scorecard", owner: "Training Lead", due: "Next week" },
-  { store: "Westfield", issue: "Guest Review Score Slipping", severity: "High", source: "Guest Reviews", owner: "GM", due: "Today" },
+  { store: "Westfield", issue: "Delivery Refunds Rising", severity: "High", source: "DoorDash", owner: "GM", due: "Today" },
   { store: "Broad Ripple", issue: "Review Score Declining", severity: "High", source: "Google Reviews", owner: "District Manager", due: "Today" },
   { store: "Carmel", issue: "Protein Cost Drift", severity: "Medium", source: "Vendor Invoices", owner: "Chef Partner", due: "3 days" }
 ];
@@ -298,7 +330,7 @@ export const reviewFeed = [
   { store: "Broad Ripple", rating: 2, source: "Yelp", comment: "Food was good but the wait was long and the table needed attention.", tag: "Speed" },
   { store: "Downtown Indy", rating: 3, source: "Google", comment: "Great energy, but our takeout order was missing two sides.", tag: "Accuracy" },
   { store: "Fishers", rating: 5, source: "TripAdvisor", comment: "Manager checked on us and the team was very friendly.", tag: "Hospitality" },
-  { store: "Westfield", rating: 3, source: "Google", comment: "Service felt slower than usual and the food was not as hot as expected.", tag: "Speed" },
+  { store: "Westfield", rating: 3, source: "Google", comment: "Delivery arrived late and fries were cold.", tag: "Delivery" },
   { store: "Greenwood", rating: 5, source: "Google", comment: "Consistent food and fast service every visit.", tag: "Food Quality" }
 ];
 

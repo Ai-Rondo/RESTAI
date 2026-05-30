@@ -5579,19 +5579,25 @@ textarea {
   overflow-x: auto;
 }
 
-.client-module-tabs button {
+.client-module-tabs button,
+.client-module-tabs a {
+  align-items: center;
   background: transparent;
   border: 0;
   border-right: 1px solid #d6dde2;
   color: #4f5e66;
   cursor: pointer;
+  display: inline-flex;
   flex: 0 0 auto;
   font-weight: 900;
+  justify-content: center;
   min-height: 40px;
   padding: 0 14px;
+  text-decoration: none;
 }
 
-.client-module-tabs button.active {
+.client-module-tabs button.active,
+.client-module-tabs a.active {
   background: #172027;
   color: #fff;
 }
