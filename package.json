@@ -1,12 +1,13 @@
 {
-  "name": "restaurant-intelligence",
+  "name": "restaurant-technology-solutions",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "lint": "next lint",
-    "netlify:build": "netlify build"
+    "netlify:build": "netlify build",
+    "cloudflare:build": "npx @cloudflare/next-on-pages@1"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

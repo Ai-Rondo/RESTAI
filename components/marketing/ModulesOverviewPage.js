@@ -35,7 +35,7 @@ export default function ModulesOverviewPage() {
         <div className="modules-hero-panel">
           <span>Connection layer</span>
           <strong>Systems stay in place.</strong>
-          <p>Restaurant Intelligence organizes the signals operators already have into one monitoring hub.</p>
+          <p>Restaurant Technology Solutions organizes the signals operators already have into one monitoring hub.</p>
         </div>
       </section>
 
@@ -81,7 +81,7 @@ export default function ModulesOverviewPage() {
             <p className="eyebrow">Intelligence layer</p>
             <h2>Once systems are connected, the dashboard can compare signals across systems.</h2>
             <p>
-              Restaurant Intelligence starts as visibility, then grows into smarter operational monitoring as the same
+              Restaurant Technology Solutions starts as visibility, then grows into smarter operational monitoring as the same
               store, date, and performance signals line up across sources.
             </p>
           </div>

@@ -160,7 +160,7 @@ export default function DashboardDemo() {
         <div className="fork-brand">
           <Image src="/demo-assets/fork-ale-mark.png" alt="Fork & Ale mark" width={74} height={74} />
           <div>
-            <Link className="back-link" href="/"><ArrowLeft size={16} /> Restaurant Intelligence</Link>
+            <Link className="back-link" href="/"><ArrowLeft size={16} /> Restaurant Technology Solutions</Link>
             <Link className="back-link demo-alt-link" href="/pnl-demo">P&L Module Demo</Link>
             <h1>Fork & Ale Operations Dashboard</h1>
             <p>Realistic tester view built from historical Fork & Ale DSRs, payroll exports, top-server report, PMIX, schedules, menu files, AORs, and a modeled full-year operating layer.</p>
@@ -269,8 +269,8 @@ export default function DashboardDemo() {
       </section>
 
       <section className="demo-panel demo-wide-note">
-        <div className="demo-panel-heading"><h2><MessageSquare size={18} /> What this proves</h2><span>Restaurant Intelligence use case</span></div>
-        <p>Fork & Ale has the same operational footprint Restaurant Intelligence is designed for: sales reports, payroll, schedules, product mix, training docs, management AORs, menus, and daily notes spread across files. The dashboard does not replace those files or systems. It organizes their signals into one operating view.</p>
+        <div className="demo-panel-heading"><h2><MessageSquare size={18} /> What this proves</h2><span>Restaurant Technology Solutions use case</span></div>
+        <p>Fork & Ale has the same operational footprint Restaurant Technology Solutions is designed for: sales reports, payroll, schedules, product mix, training docs, management AORs, menus, and daily notes spread across files. The dashboard does not replace those files or systems. It organizes their signals into one operating view.</p>
       </section>
     </main>
   );

@@ -38,7 +38,7 @@ export default function Home() {
           <p className="eyebrow">Important philosophy</p>
           <h2>Not Another System To Manage</h2>
           <p>
-            Restaurant Intelligence is designed to reduce duplicate entry. The goal is not to make managers do more
+            Restaurant Technology Solutions is designed to reduce duplicate entry. The goal is not to make managers do more
             work. The goal is to surface information they already entered somewhere else.
           </p>
         </div>

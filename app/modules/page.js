@@ -3,7 +3,7 @@ import ModulesOverviewPage from "@/components/marketing/ModulesOverviewPage";
 import Navbar from "@/components/marketing/Navbar";
 
 export const metadata = {
-  title: "Modules Overview | Restaurant Intelligence",
+  title: "Modules Overview | Restaurant Technology Solutions",
   description: "Build a restaurant operations hub by connecting sales, labor, shift notes, feedback, P&L, and more."
 };
 

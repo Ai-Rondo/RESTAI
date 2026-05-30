@@ -8,7 +8,7 @@ export default function Hero() {
         <p className="eyebrow">Restaurant operations visibility</p>
         <h1>Restaurant Operations, Finally In One Place.</h1>
         <p className="hero-subhead">
-          Restaurant Intelligence gives owners, admins, and managers a centralized monitoring dashboard for sales,
+          Restaurant Technology Solutions gives owners, admins, and managers a centralized monitoring dashboard for sales,
           labor, shift notes, guest feedback, P&Ls, alerts, and multi-location performance.
         </p>
         <div className="hero-actions">

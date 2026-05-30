@@ -2,7 +2,7 @@ import ForkSalesLaborDashboard from "@/components/modules/ForkSalesLaborDashboar
 import Navbar from "@/components/marketing/Navbar";
 
 export const metadata = {
-  title: "Sales & Labor — Fork Alehouse Operations | Restaurant Intelligence",
+  title: "Sales & Labor — Fork Alehouse Operations | Restaurant Technology Solutions",
   description:
     "A Fork Alehouse demo showing sales, labor, guest count, ordering channels, dayparts, and operating insights."
 };

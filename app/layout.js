@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Restaurant Intelligence",
+  title: "Restaurant Technology Solutions",
   description: "Restaurant operations visibility platform for multi-location operators"
 };
 

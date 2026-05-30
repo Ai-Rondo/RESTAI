@@ -322,7 +322,7 @@ export default function PnlDemo() {
     <main className="pnl-shell">
       <header className="pnl-hero">
         <div>
-          <Link className="pnl-back" href="/"><ArrowLeft size={16} /> Restaurant Intelligence</Link>
+          <Link className="pnl-back" href="/"><ArrowLeft size={16} /> Restaurant Technology Solutions</Link>
           <p className="pnl-eyebrow">P&L visibility module concept</p>
           <h1>Restaurant Financial Performance Dashboard</h1>
           <p>Modeled 2024 calendar-year view for five McAlister&apos;s stores, anchored to historical P&L files with missing periods reasonably modeled for demo continuity.</p>
