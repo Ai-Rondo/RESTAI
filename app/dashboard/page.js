@@ -1,27 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
-  ArrowDown,
-  ArrowUp,
-  BadgeCheck,
   Building2,
   ChevronRight,
-  CircleDollarSign,
   ExternalLink,
   Flame,
-  ForkKnife,
-  HeartPulse,
-  LineChart,
-  ShieldCheck,
-  Truck,
-  Users
+  Triangle
 } from "lucide-react";
 import {
   actionItems,
-  calculateStoreHealth,
   deliveryRows,
   executiveModules,
   foodCostRows,
@@ -38,22 +28,22 @@ import {
 const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const number = new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 });
 
-const metricConfig = {
-  score: { label: "Store Health Score", icon: HeartPulse, key: "healthScore", better: "high", unit: "score", route: "Executive" },
-  sales: { label: "Weekly Sales", icon: LineChart, key: "weeklySales", trend: "salesTrend", better: "high", unit: "money", route: "Sales" },
-  foodCost: { label: "Food Cost %", icon: ForkKnife, key: "foodCost", trend: "foodTrend", better: "low", unit: "percent", route: "Food Cost" },
-  labor: { label: "Labor %", icon: Users, key: "labor", trend: "laborTrend", better: "low", unit: "percent", route: "Labor" },
-  reviews: { label: "Guest Review Score", icon: BadgeCheck, key: "reviewScore", trend: "reviewTrend", better: "high", unit: "rating", route: "Reviews" },
-  ebitda: { label: "EBITDA %", icon: CircleDollarSign, key: "ebitda", trend: "ebitdaTrend", better: "high", unit: "percent", route: "P&L" },
-  safety: { label: "Safety Score", icon: ShieldCheck, key: "safety", trend: "safetyTrend", better: "high", unit: "score", route: "Safety" },
-  delivery: { label: "Delivery Performance", icon: Truck, key: "delivery", trend: "deliveryTrend", better: "high", unit: "score", route: "Delivery" },
-  alerts: { label: "Manager Alerts", icon: AlertTriangle, key: "managerAlerts", better: "low", unit: "number", route: "Action Center" },
-  actions: { label: "Open Action Items", icon: AlertTriangle, key: "openActions", better: "low", unit: "number", route: "Action Center" }
-};
+const scorecardColumns = [
+  { id: "sales", label: "Weekly Sales", key: "weeklySales", unit: "money", better: "high", module: "sales", drillLabel: "Weekly Sales" },
+  { id: "foodCost", label: "Food Cost %", key: "foodCost", unit: "percent", better: "low", module: "foodCost", drillLabel: "Food" },
+  { id: "labor", label: "Labor %", key: "labor", unit: "percent", better: "low", module: "labor", drillLabel: "Labor %" },
+  { id: "reviews", label: "Guest Review Score", key: "reviewScore", unit: "rating", better: "high", module: "reviews", drillLabel: "Review Score" },
+  { id: "ebitda", label: "EBITDA %", key: "ebitda", unit: "percent", better: "high", module: "ebitda", drillLabel: "EBITDA" },
+  { id: "safety", label: "Safety", key: "safety", unit: "score", better: "high", module: "safety", drillLabel: "Safety Score" },
+  { id: "delivery", label: "Delivery", key: "delivery", unit: "score", better: "high", module: "delivery", drillLabel: "DoorDash" },
+  { id: "issues", label: "Open Issues / Notes", key: "openActions", unit: "number", better: "low", module: "actions", drillLabel: "Open Issues" }
+];
 
 const moduleRows = {
   sales: salesRows,
   foodCost: foodCostRows,
+  food: foodDrillRows,
+  protein: proteinRows,
   reviews: reviewRows,
   delivery: deliveryRows,
   labor: laborRows,
@@ -80,159 +70,185 @@ function formatValue(value, unit) {
   return number.format(value);
 }
 
-function trendClass(value, better = "high") {
-  if (!value) return "flat";
-  const good = better === "high" ? value > 0 : value < 0;
-  return good ? "good" : "bad";
+function rowUnit(label) {
+  if (label.includes("Sales") || label === "EBITDA") return label === "EBITDA" ? "percent" : "money";
+  if (label.includes("Rating") || label === "Guest Rating" || label === "Review Score") return "rating";
+  if (label.includes("Count") || label.includes("Volume") || label.includes("Hours") || label.includes("Positions") || label.includes("Time")) return "number";
+  return "percent";
 }
 
-function statusFor(score) {
-  if (score >= 90) return "Excellent";
-  if (score >= 84) return "Stable";
-  if (score >= 78) return "Watch";
-  return "Needs Attention";
+function rowBetter(label, module) {
+  const lowerLabels = ["Food Cost", "Total COGS", "Food", "Beverage", "Packaging", "Waste", "Comps", "Variance", "Labor", "OT", "Turnover", "Open Positions", "Negative", "Average Delivery Time", "Refund", "Prime Cost", "Other Controllables"];
+  const higherLabels = ["Training Completion", "Sales", "Guest Count", "Average Check", "Review Score", "Review Count", "Positive", "Speed", "Food Quality", "Cleanliness", "Staff", "DoorDash", "Uber", "Accuracy", "Guest Rating", "Order Volume", "EBITDA", "Profit", "Safety"];
+  if (higherLabels.some((text) => label.includes(text))) return "high";
+  if (lowerLabels.some((text) => label.includes(text))) return "low";
+  return module === "delivery" || module === "reviews" || module === "sales" ? "high" : "low";
 }
 
-function rankStores(stores, config) {
+function ranksFor(values, better = "high") {
+  const sorted = [...values].sort((a, b) => better === "low" ? a - b : b - a);
+  return values.map((value) => sorted.indexOf(value) + 1);
+}
+
+function rankClass(rank, total) {
+  if (rank <= 2) return "best";
+  if (rank >= total - 1) return "worst";
+  return "middle";
+}
+
+function sortByMetric(stores, config) {
   return [...stores].sort((a, b) => {
     const direction = config.better === "low" ? 1 : -1;
-    return (a[config.key] - b[config.key]) * direction;
+    return (a[config.key] - b[config.key]) * direction || a.name.localeCompare(b.name);
   });
 }
 
 export default function ExecutiveScorecardPage() {
-  const [sortMetric, setSortMetric] = useState("score");
+  const [sortKey, setSortKey] = useState("sales");
   const [module, setModule] = useState("foodCost");
-  const [selectedStore, setSelectedStore] = useState("greenwood");
+  const [drillSort, setDrillSort] = useState("Food");
+  const [selectedStore, setSelectedStore] = useState("carmel");
   const [sourceModal, setSourceModal] = useState(null);
+  const drilldownRef = useRef(null);
 
-  const stores = useMemo(() => harborStores.map((store) => ({ ...store, healthScore: calculateStoreHealth(store) })), []);
-  const sortedStores = useMemo(() => rankStores(stores, metricConfig[sortMetric]), [stores, sortMetric]);
+  const stores = harborStores;
+  const sortedStores = useMemo(() => sortByMetric(stores, scorecardColumns.find((column) => column.id === sortKey) || scorecardColumns[0]), [stores, sortKey]);
   const selected = stores.find((store) => store.id === selectedStore) || stores[0];
-  const portfolio = useMemo(() => ({
-    sales: stores.reduce((sum, store) => sum + store.weeklySales, 0),
-    health: Math.round(stores.reduce((sum, store) => sum + store.healthScore, 0) / stores.length),
-    actions: stores.reduce((sum, store) => sum + store.openActions, 0),
-    alerts: stores.reduce((sum, store) => sum + store.managerAlerts, 0)
-  }), [stores]);
+  const rankLookup = useMemo(() => {
+    return Object.fromEntries(scorecardColumns.map((column) => [column.id, ranksFor(stores.map((store) => store[column.key]), column.better)]));
+  }, [stores]);
 
-  const currentRows = module === "food" ? foodDrillRows : module === "protein" ? proteinRows : moduleRows[module] || [];
+  const issueCount = stores.reduce((sum, store) => sum + store.openActions, 0);
+  const alertCount = stores.reduce((sum, store) => sum + store.managerAlerts, 0);
+  const salesTotal = stores.reduce((sum, store) => sum + store.weeklySales, 0);
+
+  function openDrilldown(storeId, column) {
+    setSelectedStore(storeId);
+    setModule(column.module);
+    setDrillSort(column.drillLabel);
+    window.requestAnimationFrame(() => {
+      drilldownRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 
   return (
-    <main className="exec-shell">
-      <header className="exec-hero">
+    <main className="exec-shell command-style">
+      <header className="exec-hero compact">
         <div>
           <Link href="/" className="exec-back">Restaurant Technology Solutions</Link>
           <div className="hhg-brand">
-            <span className="hhg-logo"><Flame size={20} /><b>H&H</b></span>
+            <span className="hhg-logo"><Flame size={18} /><b>H&H</b></span>
             <div>
               <strong>Harbor & Hearth Restaurant Group</strong>
-              <small>Eight-location fictional demo group</small>
+              <small>Eight-location restaurant intelligence demo</small>
             </div>
           </div>
           <h1>Executive Scorecard</h1>
-          <p>Compare every location across sales, food cost, labor, reviews, safety, delivery, profitability, alerts, and action items from one command center.</p>
+          <p>Operating table for every location. Sort by real metrics, compare rankings, and drill into the source category without losing store comparison.</p>
         </div>
-        <aside className="exec-positioning">
-          <strong>Unified intelligence layer</strong>
-          <p>Connect the systems you already use. Compare every location in one place. Turn restaurant data into action.</p>
-          <div>
-            <span>Toast</span><span>7shifts</span><span>DoorDash</span><span>Google Reviews</span><span>MarginEdge</span><span>Restaurant365</span>
-          </div>
+        <aside className="exec-positioning compact">
+          <strong>Connection layer, not a replacement system</strong>
+          <p>Toast, 7shifts, DoorDash, Google Reviews, MarginEdge, Restaurant365, and accounting reports stay in place. This layer organizes the operating view.</p>
         </aside>
       </header>
 
-      <section className="exec-rollup">
-        <div><span>Portfolio Sales</span><strong>{money.format(portfolio.sales)}</strong><small>This week across 8 stores</small></div>
-        <div><span>Avg Health Score</span><strong>{portfolio.health}</strong><small>{statusFor(portfolio.health)}</small></div>
-        <div><span>Manager Alerts</span><strong>{portfolio.alerts}</strong><small>{portfolio.alerts > 20 ? "Needs attention" : "Controlled"}</small></div>
-        <div><span>Open Action Items</span><strong>{portfolio.actions}</strong><small>Centralized action center</small></div>
+      <section className="exec-summary-bar">
+        <span><b>{stores.length}</b> locations</span>
+        <span><b>{money.format(salesTotal)}</b> weekly sales</span>
+        <span><b>{alertCount}</b> manager alerts</span>
+        <span><b>{issueCount}</b> open action items</span>
+        <span><b>{selected.name}</b> selected</span>
       </section>
 
-      <section className="exec-command-grid">
-        <article className="exec-panel exec-rankings">
-          <div className="exec-panel-head">
+      <section className="exec-operating-layout">
+        <article className="exec-panel exec-rankings table-first">
+          <div className="exec-panel-head compact">
             <div>
-              <h2>Which stores need attention right now?</h2>
-              <p>Sortable portfolio ranking. Store comparison stays visible as you drill down.</p>
+              <h2>Multi-Location Operating Table</h2>
+              <p>Click a header to sort. Click a value to drill into that module and keep every store visible.</p>
             </div>
-            <select value={sortMetric} onChange={(event) => setSortMetric(event.target.value)}>
-              {Object.entries(metricConfig).map(([key, metric]) => <option key={key} value={key}>{metric.label}</option>)}
-            </select>
           </div>
-          <div className="exec-sort-pills">
-            {Object.entries(metricConfig).map(([key, metric]) => {
-              const Icon = metric.icon;
-              return <button className={sortMetric === key ? "active" : ""} key={key} type="button" onClick={() => setSortMetric(key)}><Icon size={14} />{metric.label}</button>;
-            })}
-          </div>
-          <ComparisonTable stores={sortedStores} metric={metricConfig[sortMetric]} onSelectStore={setSelectedStore} selectedStore={selectedStore} onMetricClick={setModule} />
+          <OperatingTable
+            stores={sortedStores}
+            allStores={stores}
+            rankLookup={rankLookup}
+            sortKey={sortKey}
+            setSortKey={setSortKey}
+            selectedStore={selectedStore}
+            onSelectStore={setSelectedStore}
+            onDrilldown={openDrilldown}
+          />
         </article>
 
-        <aside className="exec-panel exec-store-focus">
-          <span>Selected store</span>
-          <h2>{selected.name}</h2>
-          <p>{selected.profile}</p>
-          <div className={`exec-health-ring ${statusFor(selected.healthScore).toLowerCase().replace(" ", "-")}`} style={{ "--score": selected.healthScore }}>
-            <strong>{selected.healthScore}</strong>
-            <small>{statusFor(selected.healthScore)}</small>
+        <aside className="exec-panel exec-insights command-notes">
+          <h2>Operator Notes</h2>
+          <div>
+            <strong>{selected.name}</strong>
+            <p>{selected.profile}</p>
           </div>
-          <div className="exec-store-mini">
-            <div><span>Manager</span><b>{selected.manager}</b></div>
-            <div><span>Sales</span><b>{money.format(selected.weeklySales)}</b></div>
-            <div><span>Food</span><b>{selected.foodCost}%</b></div>
-            <div><span>Labor</span><b>{selected.labor}%</b></div>
+          <div>
+            <strong>Current focus</strong>
+            <p>{module === "foodCost" || module === "food" || module === "protein" ? "Review cost categories and vendor/product detail before the next order cycle." : executiveModules[module]?.description || "Review open action items and source-system follow-up."}</p>
+          </div>
+          <div>
+            <strong>Action center</strong>
+            <p>{actionItems.filter((item) => item.store === selected.name).length || 1} relevant follow-up item for this location in the demo queue.</p>
           </div>
         </aside>
       </section>
 
-      <section className="exec-command-grid lower">
-        <article className="exec-panel exec-drilldown">
-          <div className="exec-panel-head">
+      <section className="exec-operating-layout lower" ref={drilldownRef}>
+        <article className="exec-panel exec-drilldown table-first">
+          <div className="exec-panel-head compact">
             <div>
-              <h2>Comparison Drill-Down</h2>
-              <p>{executiveModules[module]?.description || "Drill into the selected operating area while keeping every store visible."}</p>
+              <h2>Comparison Drilldown</h2>
+              <p>{executiveModules[module]?.description || "Every drill-down keeps store comparison visible. Rank badges show relative position by category."}</p>
             </div>
-            <div className="exec-breadcrumbs">
+            <div className="exec-breadcrumbs compact">
               {(moduleTrail[module] || ["Food Cost"]).map((item) => <span key={item}>{item}</span>)}
             </div>
           </div>
-          <div className="exec-module-tabs">
-            <button className={module === "foodCost" ? "active" : ""} type="button" onClick={() => setModule("foodCost")}>Food Cost</button>
-            <button className={module === "sales" ? "active" : ""} type="button" onClick={() => setModule("sales")}>Sales</button>
-            <button className={module === "reviews" ? "active" : ""} type="button" onClick={() => setModule("reviews")}>Reviews</button>
-            <button className={module === "delivery" ? "active" : ""} type="button" onClick={() => setModule("delivery")}>Delivery</button>
-            <button className={module === "labor" ? "active" : ""} type="button" onClick={() => setModule("labor")}>Labor</button>
-            <button className={module === "ebitda" ? "active" : ""} type="button" onClick={() => setModule("ebitda")}>P&L</button>
-            <button className={module === "safety" ? "active" : ""} type="button" onClick={() => setModule("safety")}>Safety</button>
-            <button className={module === "actions" ? "active" : ""} type="button" onClick={() => setModule("actions")}>Action Center</button>
+          <div className="exec-module-tabs compact">
+            <button className={module === "sales" ? "active" : ""} type="button" onClick={() => { setModule("sales"); setDrillSort("Weekly Sales"); }}>Sales</button>
+            <button className={module === "foodCost" ? "active" : ""} type="button" onClick={() => { setModule("foodCost"); setDrillSort("Food"); }}>Food Cost</button>
+            <button className={module === "labor" ? "active" : ""} type="button" onClick={() => { setModule("labor"); setDrillSort("Labor %"); }}>Labor</button>
+            <button className={module === "reviews" ? "active" : ""} type="button" onClick={() => { setModule("reviews"); setDrillSort("Review Score"); }}>Reviews</button>
+            <button className={module === "delivery" ? "active" : ""} type="button" onClick={() => { setModule("delivery"); setDrillSort("DoorDash"); }}>Delivery</button>
+            <button className={module === "ebitda" ? "active" : ""} type="button" onClick={() => { setModule("ebitda"); setDrillSort("EBITDA"); }}>P&L</button>
+            <button className={module === "safety" ? "active" : ""} type="button" onClick={() => { setModule("safety"); setDrillSort("Safety Score"); }}>Safety</button>
+            <button className={module === "actions" ? "active" : ""} type="button" onClick={() => { setModule("actions"); setDrillSort("Open Issues"); }}>Action Center</button>
           </div>
           {module === "safety" ? (
-            <SafetyModule stores={stores} />
+            <SafetyModule stores={stores} selectedStore={selectedStore} />
           ) : module === "actions" ? (
-            <ActionCenter onOpenSource={setSourceModal} />
+            <ActionCenter selectedStore={selectedStore} onOpenSource={setSourceModal} />
           ) : (
-            <DrilldownMatrix stores={stores} rows={currentRows} module={module} onModuleChange={setModule} onOpenSource={setSourceModal} />
+            <DrilldownTable
+              stores={stores}
+              rows={moduleRows[module] || []}
+              module={module}
+              drillSort={drillSort}
+              setDrillSort={setDrillSort}
+              selectedStore={selectedStore}
+              onModuleChange={(next, sortLabel) => { setModule(next); setDrillSort(sortLabel); }}
+              onOpenSource={setSourceModal}
+            />
           )}
         </article>
 
-        <aside className="exec-panel exec-insights">
-          <h2>Executive Signals</h2>
+        <aside className="exec-panel exec-insights command-notes">
+          <h2>Cross-System Signals</h2>
           <div>
-            <strong>Broad Ripple needs the first call.</strong>
-            <p>Health score is down because sales softened while food cost, reviews, delivery, and safety all moved in the wrong direction.</p>
+            <strong>Broad Ripple</strong>
+            <p>Food cost, review score, delivery, and safety all rank near the bottom. This is a district-manager follow-up candidate.</p>
           </div>
           <div>
-            <strong>Greenwood is the current playbook.</strong>
-            <p>Best blend of profitability, safety, cost control, and guest sentiment. Capture routines for training.</p>
+            <strong>Downtown Indy</strong>
+            <p>Top sales do not equal top performance. Food cost and delivery issues are pressuring profitability.</p>
           </div>
           <div>
-            <strong>Downtown sales are hiding cost leakage.</strong>
-            <p>Highest weekly sales, but food cost and delivery refunds are pressuring EBITDA.</p>
-          </div>
-          <div>
-            <strong>Fishers is a labor coaching opportunity.</strong>
-            <p>Guest scores are excellent, but labor is trending high despite stable sales volume.</p>
+            <strong>Fishers</strong>
+            <p>Strong reviews and delivery scores, but labor rank shows a scheduling control opportunity.</p>
           </div>
         </aside>
       </section>
@@ -242,114 +258,144 @@ export default function ExecutiveScorecardPage() {
   );
 }
 
-function ComparisonTable({ stores, metric, onSelectStore, selectedStore, onMetricClick }) {
+function OperatingTable({ stores, allStores, rankLookup, sortKey, setSortKey, selectedStore, onSelectStore, onDrilldown }) {
   return (
     <div className="exec-table-wrap">
-      <table className="exec-table">
+      <table className="exec-table operating-table">
         <thead>
           <tr>
-            <th>Rank</th><th>Store</th><th>Health</th><th>Weekly Sales</th><th>Food Cost</th><th>Labor</th><th>Reviews</th><th>EBITDA</th><th>Safety</th><th>Delivery</th><th>Alerts</th><th>Actions</th>
+            <th>Store</th>
+            {scorecardColumns.map((column) => (
+              <th key={column.id}>
+                <button className={sortKey === column.id ? "active-sort" : ""} type="button" onClick={() => setSortKey(column.id)}>
+                  {column.label}
+                  {sortKey === column.id ? <Triangle size={10} /> : null}
+                </button>
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {stores.map((store, index) => (
-            <tr className={selectedStore === store.id ? "selected" : ""} key={store.id} onClick={() => onSelectStore(store.id)}>
-              <td>#{index + 1}</td>
-              <td><strong>{store.name}</strong><small>{store.manager}</small></td>
-              <td><ScoreBadge score={store.healthScore} /></td>
-              <td><MetricButton value={store.weeklySales} unit="money" trend={store.salesTrend} better="high" onClick={() => onMetricClick("sales")} /></td>
-              <td><MetricButton value={store.foodCost} unit="percent" trend={store.foodTrend} better="low" onClick={() => onMetricClick("foodCost")} /></td>
-              <td><MetricButton value={store.labor} unit="percent" trend={store.laborTrend} better="low" onClick={() => onMetricClick("labor")} /></td>
-              <td><MetricButton value={store.reviewScore} unit="rating" trend={store.reviewTrend} better="high" onClick={() => onMetricClick("reviews")} /></td>
-              <td><MetricButton value={store.ebitda} unit="percent" trend={store.ebitdaTrend} better="high" onClick={() => onMetricClick("ebitda")} /></td>
-              <td><MetricButton value={store.safety} unit="score" trend={store.safetyTrend} better="high" onClick={() => onMetricClick("safety")} /></td>
-              <td><MetricButton value={store.delivery} unit="score" trend={store.deliveryTrend} better="high" onClick={() => onMetricClick("delivery")} /></td>
-              <td><MetricButton value={store.managerAlerts} unit="number" better="low" onClick={() => onMetricClick("actions")} /></td>
-              <td><MetricButton value={store.openActions} unit="number" better="low" onClick={() => onMetricClick("actions")} /></td>
-            </tr>
-          ))}
+          {stores.map((store) => {
+            const originalIndex = allStores.findIndex((item) => item.id === store.id);
+            return (
+              <tr className={selectedStore === store.id ? "selected" : ""} key={store.id} onClick={() => onSelectStore(store.id)}>
+                <td><strong>{store.name}</strong><small>{store.manager}</small></td>
+                {scorecardColumns.map((column) => (
+                  <td key={column.id}>
+                    <MetricValue
+                      value={store[column.key]}
+                      unit={column.unit}
+                      rank={rankLookup[column.id][originalIndex]}
+                      total={allStores.length}
+                      onClick={() => onDrilldown(store.id, column)}
+                    />
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
-      <p className="exec-table-note">Currently sorted by {metric.label}. Click any metric cell to open the related comparison module.</p>
     </div>
   );
 }
 
-function MetricButton({ value, unit, trend = 0, better, onClick }) {
+function MetricValue({ value, unit, rank, total, onClick }) {
   return (
-    <button className="exec-metric-button" type="button" onClick={(event) => { event.stopPropagation(); onClick(); }}>
-      <strong>{formatValue(value, unit)}</strong>
-      {trend ? <small className={trendClass(trend, better)}>{trend > 0 ? <ArrowUp size={12} /> : <ArrowDown size={12} />}{Math.abs(trend)}{unit === "rating" ? "" : unit === "money" ? "%" : unit === "score" ? "" : ""}</small> : <small>View</small>}
+    <button className="metric-with-rank" type="button" onClick={(event) => { event.stopPropagation(); onClick(); }}>
+      <span>{formatValue(value, unit)}</span>
+      <RankBadge rank={rank} total={total} />
     </button>
   );
 }
 
-function ScoreBadge({ score }) {
-  return <span className={`score-badge ${statusFor(score).toLowerCase().replace(" ", "-")}`}>{score}</span>;
+function RankBadge({ rank, total }) {
+  return <b className={`rank-badge ${rankClass(rank, total)}`}>{rank}</b>;
 }
 
-function DrilldownMatrix({ stores, rows, module, onModuleChange, onOpenSource }) {
+function DrilldownTable({ stores, rows, module, drillSort, setDrillSort, selectedStore, onModuleChange, onOpenSource }) {
+  const sortRow = rows.find((row) => row.label === drillSort) || rows[0];
+  const sortRanks = sortRow ? ranksFor(sortRow.values, rowBetter(sortRow.label, module)) : stores.map((_, index) => index + 1);
+  const sortedIndexes = stores.map((_, index) => index).sort((a, b) => sortRanks[a] - sortRanks[b]);
+
   return (
-    <div className="matrix-wrap">
-      <div className="matrix-grid" style={{ "--store-count": stores.length }}>
-        <div className="matrix-head label">Metric</div>
-        {stores.map((store) => <div className="matrix-head" key={store.id}>{store.name}</div>)}
-        {rows.map((row) => (
-          <RowCells key={row.label} row={row} stores={stores} module={module} onModuleChange={onModuleChange} onOpenSource={onOpenSource} />
-        ))}
-      </div>
+    <div className="exec-table-wrap">
+      <table className="exec-table drill-table">
+        <thead>
+          <tr>
+            <th>Store</th>
+            {rows.map((row) => (
+              <th key={row.label}>
+                <button className={drillSort === row.label ? "active-sort" : ""} type="button" onClick={() => {
+                  if (module === "foodCost" && row.label === "Food") onModuleChange("food", "Protein");
+                  else if (module === "food" && row.label === "Protein") onModuleChange("protein", "Chicken");
+                  else setDrillSort(row.label);
+                }}>
+                  {row.label}
+                  {module === "foodCost" && row.label === "Food" ? <ChevronRight size={12} /> : null}
+                  {module === "food" && row.label === "Protein" ? <ChevronRight size={12} /> : null}
+                  {drillSort === row.label ? <Triangle size={10} /> : null}
+                </button>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {sortedIndexes.map((storeIndex) => {
+            const store = stores[storeIndex];
+            return (
+              <tr className={selectedStore === store.id ? "selected highlight" : ""} key={store.id}>
+                <td><strong>{store.name}</strong><small>{store.manager}</small></td>
+                {rows.map((row) => {
+                  const better = rowBetter(row.label, module);
+                  const ranks = ranksFor(row.values, better);
+                  const value = row.values[storeIndex];
+                  return (
+                    <td key={`${store.id}-${row.label}`}>
+                      <button className="metric-with-rank" type="button" onClick={() => onOpenSource({ source: row.source || executiveModules[module]?.source || "Connected Source System", metric: `${store.name} / ${row.label}` })}>
+                        <span>{formatValue(value, rowUnit(row.label))}</span>
+                        <RankBadge rank={ranks[storeIndex]} total={stores.length} />
+                      </button>
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-function RowCells({ row, stores, module, onModuleChange, onOpenSource }) {
-  const max = Math.max(...row.values);
-  const min = Math.min(...row.values);
+function SafetyModule({ stores, selectedStore }) {
+  const ranks = ranksFor(stores.map((store) => store.safety), "high");
+  const sorted = stores.map((store, index) => ({ store, index })).sort((a, b) => ranks[a.index] - ranks[b.index]);
   return (
-    <>
-      <button className="matrix-label" type="button" onClick={() => {
-        if (module === "foodCost" && row.label === "Food") onModuleChange("food");
-        else if (module === "food" && row.label === "Protein") onModuleChange("protein");
-        else onOpenSource({ source: row.source || executiveModules[module]?.source || "Connected Source System", metric: row.label });
-      }}>
-        <span>{row.label}</span>
-        <ChevronRight size={14} />
-      </button>
-      {stores.map((store, index) => {
-        const value = row.values[index];
-        const highRisk = row.target === 0 ? value > 1 : value > row.target * 1.08;
-        const good = row.target === 0 ? value <= 0 : value <= row.target;
-        const intensity = (value - min) / Math.max(1, max - min);
-        return (
-          <button className={`matrix-cell ${good ? "good" : highRisk ? "risk" : "watch"}`} style={{ "--intensity": intensity }} type="button" key={`${row.label}-${store.id}`} onClick={() => onOpenSource({ source: row.source || executiveModules[module]?.source || "Connected Source System", metric: `${store.name} / ${row.label}` })}>
-            <strong>{formatValue(value, row.label.includes("Sales") || row.label === "Sales" ? "money" : row.label.includes("Rating") || row.label === "Guest Rating" ? "rating" : row.label.includes("Count") || row.label.includes("Volume") || row.label.includes("Hours") || row.label.includes("Positions") || row.label.includes("Time") ? "number" : "percent")}</strong>
-            <span>{good ? "Good" : highRisk ? "High" : "Watch"}</span>
-          </button>
-        );
-      })}
-    </>
-  );
-}
-
-function SafetyModule({ stores }) {
-  return (
-    <div className="safety-module">
-      {stores.map((store) => (
-        <div key={store.id}>
-          <strong>{store.name}</strong>
-          <div>{safetyHistory[store.name].map((status, index) => <span className={status} key={`${store.name}-${index}`}>{status}</span>)}</div>
-          <small>Current score {store.safety} / trend {store.safetyTrend >= 0 ? "+" : ""}{store.safetyTrend}</small>
-        </div>
-      ))}
+    <div className="exec-table-wrap">
+      <table className="exec-table safety-table">
+        <thead><tr><th>Store</th><th>Safety Score</th><th>Audit History</th><th>Status</th></tr></thead>
+        <tbody>
+          {sorted.map(({ store, index }) => (
+            <tr className={selectedStore === store.id ? "selected highlight" : ""} key={store.id}>
+              <td><strong>{store.name}</strong><small>{store.manager}</small></td>
+              <td><span className="metric-with-rank static"><span>{store.safety}</span><RankBadge rank={ranks[index]} total={stores.length} /></span></td>
+              <td><div className="audit-badges">{safetyHistory[store.name].map((status, auditIndex) => <span className={status} key={`${store.name}-${auditIndex}`}>{status}</span>)}</div></td>
+              <td>{store.safety >= 94 ? "Passing" : store.safety >= 88 ? "Watch" : "Needs Review"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-function ActionCenter({ onOpenSource }) {
+function ActionCenter({ selectedStore, onOpenSource }) {
   return (
-    <div className="action-center">
+    <div className="action-center table-like">
       {actionItems.map((item) => (
-        <button className={item.severity.toLowerCase()} key={`${item.store}-${item.issue}`} type="button" onClick={() => onOpenSource({ source: item.source, metric: item.issue })}>
+        <button className={`${item.severity.toLowerCase()} ${selectedStore && item.store === harborStores.find((store) => store.id === selectedStore)?.name ? "selected" : ""}`} key={`${item.store}-${item.issue}`} type="button" onClick={() => onOpenSource({ source: item.source, metric: item.issue })}>
           <span>{item.severity}</span>
           <strong>{item.store}</strong>
           <p>{item.issue}</p>
@@ -372,7 +418,7 @@ function SourceModal({ source, onClose }) {
           <Building2 size={18} />
           <strong>{source.source}</strong>
         </div>
-        <p>Restaurant Technology Solutions does not replace the source system. It keeps comparison visible, then sends the operator to the record of truth when deeper action is required.</p>
+        <p>Restaurant Technology Solutions does not replace Toast, 7shifts, DoorDash, Google Reviews, MarginEdge, Restaurant365, or accounting software. It keeps the cross-store comparison visible, then sends the operator to the record of truth when deeper action is required.</p>
         <button type="button" onClick={onClose}>Close</button>
       </section>
     </div>

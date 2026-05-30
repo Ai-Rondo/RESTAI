@@ -178,13 +178,6 @@ export const harborStores = [
 ];
 
 export const executiveModules = {
-  score: {
-    label: "Store Health Score",
-    unit: "score",
-    source: "Restaurant Technology Solutions",
-    target: 85,
-    description: "Weighted operating health score across sales, food cost, labor, reviews, safety, delivery, profitability, and action load."
-  },
   sales: {
     label: "Weekly Sales",
     unit: "money",
@@ -332,25 +325,3 @@ export const actionItems = [
   { store: "Broad Ripple", issue: "Review Score Declining", severity: "High", source: "Google Reviews", owner: "District Manager", due: "Today" },
   { store: "Carmel", issue: "Protein Cost Drift", severity: "Medium", source: "Vendor Invoices", owner: "Chef Partner", due: "3 days" }
 ];
-
-export function calculateStoreHealth(store) {
-  const salesScore = Math.min(100, Math.max(50, 70 + store.salesTrend * 4 + (store.weeklySales - 45000) / 900));
-  const foodScore = Math.max(45, 100 - Math.max(0, store.foodCost - 26) * 6);
-  const laborScore = Math.max(45, 100 - Math.max(0, store.labor - 29) * 5);
-  const reviewScore = Math.min(100, store.reviewScore * 20);
-  const safetyScore = store.safety;
-  const deliveryScore = store.delivery;
-  const profitScore = Math.min(100, Math.max(45, 55 + store.ebitda * 3));
-  const actionPenalty = Math.min(16, store.managerAlerts * 1.6 + store.openActions * 0.45);
-
-  return Math.round(
-    salesScore * 0.14 +
-    foodScore * 0.14 +
-    laborScore * 0.14 +
-    reviewScore * 0.14 +
-    safetyScore * 0.12 +
-    deliveryScore * 0.12 +
-    profitScore * 0.14 -
-    actionPenalty
-  );
-}
